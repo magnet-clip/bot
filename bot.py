@@ -38,12 +38,18 @@ def repeat_all_messages(message):
 	bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
-	while True:
-		try:
-			print("Connecting...")
-			bot.polling(none_stop=True)
-		except Exception as e:
-			print("Some polling error happened: " + e.strerror)
-			print("Will try to reconnect in 10 seconds")
-			time.sleep(10)
+	try:
+		while True:
+			try:
+				print("Connecting...")
+				bot.polling(none_stop=False)
+			except KeyboardInterrupt:
+				print("Bye!")
+				raise
+			except Exception as e:
+				print("Some polling error happened: " + e.strerror)
+				print("Will try to reconnect in 10 seconds")
+				time.sleep(10)
+	except KeyboardInterrupt:
+		print("Bye again")
 		
