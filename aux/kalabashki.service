@@ -1,0 +1,12 @@
+[Unit]
+Description=KalabashkiBot
+After=multi-user.target
+
+[Service]
+User=pi
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/dev/kalabashki/bot.py 2> /home/pi/dev/kalabashki/kalabaski2.log
+WorkingDirectory=/home/pi/dev/kalabashki
+
+[Install]
+WantedBy=multi-user.target
