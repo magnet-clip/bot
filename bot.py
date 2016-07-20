@@ -1,7 +1,6 @@
 import config
 import telebot
 import bot_utils
-import picamera
 import time
 import logging
 import sys
@@ -14,31 +13,48 @@ def ctrlchandler(signum, frame):
 signal.signal(signal.SIGINT, ctrlchandler)
 
 logger = telebot.logger
-telebot.logger.setLevel(logging.DEBUG)
-
-def make_and_save_snapshot():
-    file_name = "./snaps/" + bot_utils.get_temp_file_name() + ".jpg"
-    print("File is %s" % file_name)
-    temp_file = open(file_name, 'wb')
-    with picamera.PiCamera() as camera:
-        camera.resolution = (640, 480)
-        #camera.start_preview()
-        time.sleep(2)
-        camera.capture(temp_file)
-        temp_file.close()
-    return file_name
+telebot.logger.setLevel(logging.WARN)
 
 bot = telebot.TeleBot(config.token, threaded=False)
 
-@bot.inline_handler(lambda query: len(query.query) > 0)
-def inline_handler(query):
-	res = telebot.types.InlineQueryResultArticle( '1','Answer', telebot.types.InputTextMessageContent(query.query))
-	bot.answer_inline_query(query.id, [res])
+#@bot.inline_handler(lambda query: len(query.query) > 0)
+#def inline_handler(query):
+#	res = telebot.types.InlineQueryResultArticle( '1','Answer', telebot.types.InputTextMessageContent(query.query))
+#	bot.answer_inline_query(query.id, [res])
+
+@bot.message_handler(commands=['boss'])
+def set_boss(message):
+    print("User %s id [%s] wants to be a boss" % (message.from_user.first_name, message.from_user.id))
+    user_id = message.from_user.id
+    res = bot_utils.man.set_super_user(user_id)
+    print("... and the answer is %s" % res)
+    if res == bot_utils.man.DONE:
+        bot.send_message(message.chat.id, "You are the king now")
+    elif res == bot_utils.man.OK:
+        bot.send_message(message.chat.id, "I know")
+    else:
+        bot.send_message(message.chat.id, "Nope")
+
+@bot.message_handler(commands=['getaccess'])
+def get_access(message):
+    user_id = message.from_user.id
+    print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
+    bot.send_message(
+        bot_utils.man.get_admin_id(),  \
+        "User %s id [%s] wants to get access; Type /grant [id] to allow, /ban [id] to ban him".format(message.from_user.first_name, user_id) \
+    )
+    bot.send_message(user_id, "Your application is under review")
+
 
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
-    print("User %s requested a photo" % message.from_user.first_name)
-    file_name = make_and_save_snapshot()
+    print("User %s id [%s] requested a photo" % (message.from_user.first_name, message.from_user.id))
+
+    if not bot_utils.man.is_user_allowed(message.from_user.id):
+        bot.send_message(message.chat.id, "No access! Type /getaccess if you want to request access")
+        return
+
+    file_name = bot_utils.make_and_save_snapshot()
     temp_file = open(file_name, 'rb')
     try:
         print("Sending...")
@@ -55,7 +71,7 @@ def make_snapshot(message):
 
 @bot.message_handler(content_types=["text"])
 def repeat_all_messages(message):
-    print("Got message %s from %s" % (message.text, message.from_user.first_name))
+    print("Got message %s from %s id %s" % (message.text, message.from_user.first_name, message.from_user.id))
     bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
@@ -67,3 +83,55 @@ if __name__ == '__main__':
             print("Some polling error happened: {0}".format(e))
             print("Will try to reconnect in 10 seconds")
             time.sleep(10)
+
+# Notifications are:
+# ------------------------------
+#
+# For a regular user:
+#  - motion
+#  - gas / co2 / temperature / moisture by threshold
+
+#
+# Workflow
+# ---------------------------------
+# Superuser register itself by typing /boss
+#  - if no superuser currently exists, then this users' id is saved as superuser and he gets notification
+#  - if superuser exists then
+#    - if it differs from current user then say 'Nope'
+#	 - if it already is a boss then say 'I know' 
+
+# When user enters any command except for `boss`, bot checks its permissions by calling `is_user_allowed(id)`
+#  - if no, then reply `you are not allowed to use this bot, in order to request access type `/getaccess` and it will be reviewed by admin`
+#  - if yes then execute the command
+
+# When user types command `/getaccess` his rights are to be checked by calling `is_user_allowed(id)`
+# - if user already has access then reply `access granted`
+# - if user has already applied then reply `under review`. It is checked by calling method `is_access_pending(id)`
+#	 - method `is_access_pending` checks if in users section [id] `status` variable equals to `pending`
+# - if user was banned then reply `go away`. Is is checked by calling `is_user_banned(id)`
+#	 - method `is_access_pending` checks if in users section [id] `status` variable equals to `banned`
+# - if user applies for the first time then answer `please wait, your request is under review`
+#	 - notify admin on such a request
+#	 - create a section in config for such user [id]
+
+# In order to grant access to user admin writes `/grant [id]`
+#	- 
+
+# Admin commands
+# /boss
+# /grant [id]
+# /delete [id]
+# /ban [id]
+# /watch [id]
+# /unwatch [id]
+# /who? lists ids and names
+
+# Common commands
+# /help
+# /photo [center, topleft, topright, bottomleft, bottomright] makes a photo
+# /history [co2 / gas / temp / moist] [hour / {N} hours / day / week / month / year] sends a chart with data available
+# /alert turns on a siren (?)
+# /notify [co2 / gas / temp / moist] [less | greater] {value}
+# /notify motion
+# /mute [co2 / gas / temp / moist / motion]
+# /what?
