@@ -1,5 +1,7 @@
+/config.py
 *.swp
 __*
 *.pyc
 *.jpg
 *.log
+
