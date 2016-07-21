@@ -53,6 +53,21 @@ def get_access(message):
         bot.send_message(user_id, "Your application is under review")
         bot_utils.register_user_pending(user_id)
 
+@bot.nessage_handler(commands=['grant'])
+def grant_access(message):
+    user_id = message.from_user.id
+    grantee_id = bot_utils.fetch_id(message.text, 'grant')
+    
+    if not bot_utils.man.is_super_user(user_id):
+        bot.send_message(message.chat.id, "You are not authorized to run this command")
+        return
+    
+    if grantee_id == None:
+        bot.send_message(message.chat.id, "Failed to fetch user id")
+        return
+    
+    bot_utils.man.grant_access(grantee_id)
+        
 
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
