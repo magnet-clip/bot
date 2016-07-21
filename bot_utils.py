@@ -36,10 +36,10 @@ def fetch_id(text, command):
     regex = "^/{0} +(\d+)$".format(command)
     print("... regex is %s" % regex)
     pattern = re.compile(regex)
-    matches = re.findall(text)
+    matches = re.findall(pattern, text)
     print(matches)
-    
-    if matches.len == 0:
+
+    if len(matches) == 0:
         return None
     else:
         return matches[0]
@@ -64,8 +64,8 @@ class Config:
             return True
 
         if uid in self._config:
-            return self._config[uid]["permission"] == "granted"
-            
+            return self._config[uid]["status"] == "granted"
+
         return False
 
     def has_super_user(self):
@@ -75,7 +75,7 @@ class Config:
     def is_super_user(self, user_id):
         uid = str(user_id)
         return self._config["superuser"]["id"] == uid
-        
+
     def set_super_user(self, user_id):
         uid = str(user_id)
         if not self.has_super_user():
@@ -91,21 +91,21 @@ class Config:
 
     def get_admin_id(self):
         return self._config["superuser"]["id"]
-        
+
     def is_user_pending(self, user_id):
         uid = str(user_id)
         if user_id in self._config:
             return self._config[uid]["status"] == "pending"
-        else: 
+        else:
             return False
 
     def is_user_banned(self, user_id):
         uid = str(user_id)
         if uid in self._config:
             return self._config[uid]["status"] == "banned"
-        else: 
+        else:
             return False
-    
+
     def register_user_pending(self, user_id):
         uid = str(user_id)
         if user_id in self._config:
@@ -114,12 +114,25 @@ class Config:
         self._config[uid]["status"] = "pending"
         self.save()
         return self.OK
-        
+
     def grant_access(self, user_id):
         uid = str(user_id)
         if not (user_id in self._config):
             self._config.add_section(uid)
         self._config[uid]["status"] = "granted"
-        self._save()
+        self.save()
+
+    def ban_user(self, user_id):
+        uid = str(user_id)
+        if not (user_id in self._config):
+            self._config.add_section(uid)
+        self._config[uid]["status"] = "banned"
+        self.save()
+
+    def delete_user(self, user_id):
+        uid = str(user_id)
+        if user_id in self._config:
+            self._config.remove_section(uid)
+        self.save()
 
 man = Config()

@@ -37,6 +37,7 @@ def set_boss(message):
 
 @bot.message_handler(commands=['getaccess'])
 def get_access(message):
+    print("User %s id [%s] is requesting access" % (message.from_user.first_name, message.from_user.id))
     user_id = message.from_user.id
     if bot_utils.man.is_user_allowed(user_id):
         bot.send_message(user_id, "You have an access ALREADY")
@@ -44,7 +45,7 @@ def get_access(message):
         bot.send_message(user_id, "Still under review!")
     elif bot_utils.man.is_user_banned(user_id):
         bot.send_message(user_id, "No and don't ask again!")
-    else:    
+    else:
         print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
         bot.send_message(
             bot_utils.man.get_admin_id(),  \
@@ -53,21 +54,58 @@ def get_access(message):
         bot.send_message(user_id, "Your application is under review")
         bot_utils.register_user_pending(user_id)
 
-@bot.nessage_handler(commands=['grant'])
+@bot.message_handler(commands=['grant'])
 def grant_access(message):
+    print("Grant access command")
+
     user_id = message.from_user.id
     grantee_id = bot_utils.fetch_id(message.text, 'grant')
-    
+
     if not bot_utils.man.is_super_user(user_id):
         bot.send_message(message.chat.id, "You are not authorized to run this command")
         return
-    
+
     if grantee_id == None:
         bot.send_message(message.chat.id, "Failed to fetch user id")
         return
-    
+
     bot_utils.man.grant_access(grantee_id)
-        
+    bot.send_message(grantee_id, "Willkommen!")
+
+
+@bot.message_handler(commands=['delete'])
+def delete_user(message):
+    print("Delete user command")
+
+    user_id = message.from_user.id
+    grantee_id = bot_utils.fetch_id(message.text, 'delete')
+
+    if not bot_utils.man.is_super_user(user_id):
+        bot.send_message(message.chat.id, "You are not authorized to run this command")
+        return
+
+    if grantee_id == None:
+        bot.send_message(message.chat.id, "Failed to fetch user id")
+        return
+
+    bot_utils.man.delete_user(grantee_id)
+
+@bot.message_handler(commands=['ban'])
+def ban_user(message):
+    print("Ban user command")
+
+    user_id = message.from_user.id
+    grantee_id = bot_utils.fetch_id(message.text, 'ban')
+
+    if not bot_utils.man.is_super_user(user_id):
+        bot.send_message(message.chat.id, "You are not authorized to run this command")
+        return
+
+    if grantee_id == None:
+        bot.send_message(message.chat.id, "Failed to fetch user id")
+        return
+
+    bot_utils.man.ban_user(grantee_id)
 
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
@@ -92,10 +130,10 @@ def make_snapshot(message):
     except Exception as e:
         print("Failed to delete temp files: {0}".format(e))
 
-@bot.message_handler(content_types=["text"])
-def repeat_all_messages(message):
-    print("Got message %s from %s id %s" % (message.text, message.from_user.first_name, message.from_user.id))
-    bot.send_message(message.chat.id, message.text)
+#@bot.message_handler(content_types=["text"])
+#def repeat_all_messages(message):
+#    print("Got message %s from %s id %s" % (message.text, message.from_user.first_name, message.from_user.id))
+#    bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
     while True:
