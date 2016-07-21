@@ -136,6 +136,7 @@ if __name__ == '__main__':
 
 # Common commands
 # /help
+# /getaccess
 # /photo [center, topleft, topright, bottomleft, bottomright] makes a photo
 # /history [co2 / gas / temp / moist] [hour / {N} hours / day / week / month / year] sends a chart with data available
 # /alert turns on a siren (?)
