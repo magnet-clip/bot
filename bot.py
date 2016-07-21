@@ -38,12 +38,20 @@ def set_boss(message):
 @bot.message_handler(commands=['getaccess'])
 def get_access(message):
     user_id = message.from_user.id
-    print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
-    bot.send_message(
-        bot_utils.man.get_admin_id(),  \
-        "User %s id [%s] wants to get access; Type /grant [id] to allow, /ban [id] to ban him".format(message.from_user.first_name, user_id) \
-    )
-    bot.send_message(user_id, "Your application is under review")
+    if bot_utils.man.is_user_allowed(user_id):
+        bot.send_message(user_id, "You have an access ALREADY")
+    elif bot_utils.man.is_user_pending(user_id):
+        bot.send_message(user_id, "Still under review!")
+    elif bot_utils.man.is_user_banned(user_id):
+        bot.send_message(user_id, "No and don't ask again!")
+    else:    
+        print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
+        bot.send_message(
+            bot_utils.man.get_admin_id(),  \
+            "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(message.from_user.first_name, user_id) \
+        )
+        bot.send_message(user_id, "Your application is under review")
+        bot_utils.register_user_pending(user_id)
 
 
 @bot.message_handler(commands=['photo'])
