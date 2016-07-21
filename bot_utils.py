@@ -4,6 +4,7 @@ import os
 import shutil
 import configparser
 import picamera
+import re
 
 
 def get_temp_file_name():
@@ -31,6 +32,17 @@ def clear_folder(folder):
         except Exception as e:
             print(e)
 
+def fetch_id(text, command):
+    regex = "^/{0} +(\d+)$".format(command)
+    print("... regex is %s" % regex)
+    pattern = re.compile(regex)
+    matches = re.findall(text)
+    print(matches)
+    
+    if matches.len == 0:
+        return None
+    else:
+        return matches[0]
 
 class Config:
     _CONFIG_FILE = "bot.config"
@@ -48,7 +60,13 @@ class Config:
 
     def is_user_allowed(self, user_id):
         uid = str(user_id)
-        return self.is_super_user(uid) or uid in self._config
+        if self.is_super_user(uid):
+            return True
+
+        if uid in self._config:
+            return self._config[uid]["permission"] == "granted"
+            
+        return False
 
     def has_super_user(self):
         print("Current superuser id is %s" % self._config["superuser"]["id"])
@@ -96,5 +114,12 @@ class Config:
         self._config[uid]["status"] = "pending"
         self.save()
         return self.OK
+        
+    def grant_access(self, user_id):
+        uid = str(user_id)
+        if not (user_id in self._config):
+            self._config.add_section(uid)
+        self._config[uid]["status"] = "granted"
+        self._save()
 
 man = Config()
