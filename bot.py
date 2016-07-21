@@ -141,21 +141,21 @@ if __name__ == '__main__':
 #	- 
 
 # Admin commands
-# /boss
-# /grant [id]
-# /delete [id]
-# /ban [id]
-# /watch [id]
-# /unwatch [id]
-# /who? lists ids and names
+# /boss OK
+# /grant [id] OK
+# /delete [id] TODO
+# /ban [id] TODO
+# /watch [id] TODO
+# /unwatch [id] TODO
+# /who? lists ids and names of users watched TODO
 
 # Common commands
 # /help
-# /getaccess
-# /photo [center, topleft, topright, bottomleft, bottomright] makes a photo
+# /getaccess OK
+# /photo [center, topleft, topright, bottomleft, bottomright] makes a photo PARTIAL
 # /history [co2 / gas / temp / moist] [hour / {N} hours / day / week / month / year] sends a chart with data available
 # /alert turns on a siren (?)
 # /notify [co2 / gas / temp / moist] [less | greater] {value}
 # /notify motion
 # /mute [co2 / gas / temp / moist / motion]
-# /what?
+# /what? lists my watches
