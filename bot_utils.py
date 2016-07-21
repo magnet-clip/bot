@@ -47,22 +47,25 @@ class Config:
             self._config.write(cnf)
 
     def is_user_allowed(self, user_id):
-        return self.is_super_user(user_id) or user_id in self._config
+        uid = str(user_id)
+        return self.is_super_user(uid) or uid in self._config
 
     def has_super_user(self):
         print("Current superuser id is %s" % self._config["superuser"]["id"])
         return self._config["superuser"]["id"] != 'NONE'
 
     def is_super_user(self, user_id):
-        return self._config["superuser"]["id"] == str(user_id)
-
+        uid = str(user_id)
+        return self._config["superuser"]["id"] == uid
+        
     def set_super_user(self, user_id):
+        uid = str(user_id)
         if not self.has_super_user():
             print(" -> no superuser yet defined")
-            self._config["superuser"]["id"] = str(user_id)
+            self._config["superuser"]["id"] = uid
             self.save()
             return self.DONE
-        elif self.is_super_user(str(user_id)):
+        elif self.is_super_user(uid):
             print(" -> he is already")
             return self.OK
         else:
@@ -70,5 +73,28 @@ class Config:
 
     def get_admin_id(self):
         return self._config["superuser"]["id"]
+        
+    def is_user_pending(self, user_id):
+        uid = str(user_id)
+        if user_id in self._config:
+            return self._config[uid]["status"] == "pending"
+        else: 
+            return False
+
+    def is_user_banned(self, user_id):
+        uid = str(user_id)
+        if uid in self._config:
+            return self._config[uid]["status"] == "banned"
+        else: 
+            return False
+    
+    def register_user_pending(self, user_id):
+        uid = str(user_id)
+        if user_id in self._config:
+            return self.FAIL
+        self._config.add_section(uid)
+        self._config[uid]["status"] = "pending"
+        self.save()
+        return self.OK
 
 man = Config()
