@@ -6,7 +6,6 @@ import configparser
 import picamera
 import re
 
-
 def get_temp_file_name():
     return str(random.randint(10000, 99999)) + "_" + str(int(round(time.time() * 1000)))
 
@@ -134,5 +133,3 @@ class Config:
         if user_id in self._config:
             self._config.remove_section(uid)
         self.save()
-
-man = Config()

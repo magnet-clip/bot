@@ -1,6 +1,7 @@
 import config
 import telebot
 import bot_utils
+import bot_events
 import time
 import logging
 import sys
@@ -15,7 +16,10 @@ signal.signal(signal.SIGINT, ctrlchandler)
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
 
+man = bot_utils.Config()
 bot = telebot.TeleBot(config.token, threaded=False)
+
+bot_handler = bot_events.Handler(bot, man)
 
 #@bot.inline_handler(lambda query: len(query.query) > 0)
 #def inline_handler(query):
@@ -24,111 +28,27 @@ bot = telebot.TeleBot(config.token, threaded=False)
 
 @bot.message_handler(commands=['boss'])
 def set_boss(message):
-    print("User %s id [%s] wants to be a boss" % (message.from_user.first_name, message.from_user.id))
-    user_id = message.from_user.id
-    res = bot_utils.man.set_super_user(user_id)
-    print("... and the answer is %s" % res)
-    if res == bot_utils.man.DONE:
-        bot.send_message(message.chat.id, "You are the king now")
-    elif res == bot_utils.man.OK:
-        bot.send_message(message.chat.id, "I know")
-    else:
-        bot.send_message(message.chat.id, "Nope")
+    bot_handler.set_boss(message)
 
 @bot.message_handler(commands=['getaccess'])
 def get_access(message):
-    print("User %s id [%s] is requesting access" % (message.from_user.first_name, message.from_user.id))
-    user_id = message.from_user.id
-    if bot_utils.man.is_user_allowed(user_id):
-        bot.send_message(user_id, "You have an access ALREADY")
-    elif bot_utils.man.is_user_pending(user_id):
-        bot.send_message(user_id, "Still under review!")
-    elif bot_utils.man.is_user_banned(user_id):
-        bot.send_message(user_id, "No and don't ask again!")
-    else:
-        print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
-        bot.send_message(
-            bot_utils.man.get_admin_id(),  \
-            "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(message.from_user.first_name, user_id) \
-        )
-        bot.send_message(user_id, "Your application is under review")
-        bot_utils.register_user_pending(user_id)
+    bot_handler.get_access(message)
 
 @bot.message_handler(commands=['grant'])
 def grant_access(message):
-    print("Grant access command")
-
-    user_id = message.from_user.id
-    grantee_id = bot_utils.fetch_id(message.text, 'grant')
-
-    if not bot_utils.man.is_super_user(user_id):
-        bot.send_message(message.chat.id, "You are not authorized to run this command")
-        return
-
-    if grantee_id == None:
-        bot.send_message(message.chat.id, "Failed to fetch user id")
-        return
-
-    bot_utils.man.grant_access(grantee_id)
-    bot.send_message(grantee_id, "Willkommen!")
-
+    bot_handler.grant_access(message)
 
 @bot.message_handler(commands=['delete'])
 def delete_user(message):
-    print("Delete user command")
-
-    user_id = message.from_user.id
-    grantee_id = bot_utils.fetch_id(message.text, 'delete')
-
-    if not bot_utils.man.is_super_user(user_id):
-        bot.send_message(message.chat.id, "You are not authorized to run this command")
-        return
-
-    if grantee_id == None:
-        bot.send_message(message.chat.id, "Failed to fetch user id")
-        return
-
-    bot_utils.man.delete_user(grantee_id)
+    bot_handler.delete_user(message)
 
 @bot.message_handler(commands=['ban'])
 def ban_user(message):
-    print("Ban user command")
-
-    user_id = message.from_user.id
-    grantee_id = bot_utils.fetch_id(message.text, 'ban')
-
-    if not bot_utils.man.is_super_user(user_id):
-        bot.send_message(message.chat.id, "You are not authorized to run this command")
-        return
-
-    if grantee_id == None:
-        bot.send_message(message.chat.id, "Failed to fetch user id")
-        return
-
-    bot_utils.man.ban_user(grantee_id)
+    bot_handler.ban_user(message)
 
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
-    print("User %s id [%s] requested a photo" % (message.from_user.first_name, message.from_user.id))
-
-    if not bot_utils.man.is_user_allowed(message.from_user.id):
-        bot.send_message(message.chat.id, "No access! Type /getaccess if you want to request access")
-        return
-
-    file_name = bot_utils.make_and_save_snapshot()
-    temp_file = open(file_name, 'rb')
-    try:
-        print("Sending...")
-        bot.send_photo(message.chat.id, temp_file)
-    except Exception as e:
-        print("Failed to send photo: {0}".format(e))
-    finally:
-        temp_file.close()
-
-    try:
-        bot_utils.clear_folder("./snaps")
-    except Exception as e:
-        print("Failed to delete temp files: {0}".format(e))
+    bot_handler.make_snapshot(message)
 
 #@bot.message_handler(content_types=["text"])
 #def repeat_all_messages(message):
