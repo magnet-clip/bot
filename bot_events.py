@@ -1,12 +1,10 @@
 import bot_utils
-import bot_events
-import time
-import logging
 
 class Handler():
-    def __init__(self, bot, man):
+    def __init__(self, bot, man, cam):
         self.bot = bot
         self.man = man
+        self.cam = cam
 
     def _authorize_admin(self, user_id, chat_id):
         bot = self.bot
@@ -17,17 +15,25 @@ class Handler():
             return False
 
         return True
+        
+    def _authorize_user(self, user_id):
+        bot = self.bot
+        man = self.man
+        if not man.is_user_allowed(user_id):
+            bot.send_message(user_id, "No access! Type /getaccess if you want to request access")
+            return False
+            
+        return True
+       
 
     def _fetch_user_id(self, text, chat_id):
         bot = self.bot
-        man = self.man
 
         grantee_id = bot_utils.fetch_id(text, 'grant')
         if grantee_id == None:
             bot.send_message(chat_id, "Failed to fetch user id")
 
         return grantee_id
-
 
     def set_boss(self, message):
         bot = self.bot
@@ -42,15 +48,14 @@ class Handler():
             bot.send_message(message.chat.id, "I know")
         else:
             bot.send_message(message.chat.id, "Nope")
-
-
+            
     def get_access(self, message):
         bot = self.bot
         man = self.man
         print("User %s id [%s] is requesting access" % (message.from_user.first_name, message.from_user.id))
         user_id = message.from_user.id
         if man.is_user_allowed(user_id):
-            send_message(user_id, "You have an access ALREADY")
+            bot.send_message(user_id, "You have an access ALREADY")
         elif man.is_user_pending(user_id):
             bot.send_message(user_id, "Still under review!")
         elif man.is_user_banned(user_id):
@@ -78,7 +83,6 @@ class Handler():
 
     def delete_user(self, message):
         print("Delete user command")
-        bot = self.bot
         man = self.man
 
         if not self._authorize_admin(message.from_user.id, message.chat.id): return
@@ -89,7 +93,6 @@ class Handler():
 
     def ban_user(self, message):
         print("Ban user command")
-        bot = self.bot
         man = self.man
 
         if not self._authorize_admin(message.from_user.id, message.chat.id): return
@@ -100,14 +103,13 @@ class Handler():
 
     def make_snapshot(self, message):
         bot = self.bot
-        man = self.man
+        cam = self.cam
         print("User %s id [%s] requested a photo" % (message.from_user.first_name, message.from_user.id))
 
-        if not man.is_user_allowed(message.from_user.id):
-            bot.send_message(message.chat.id, "No access! Type /getaccess if you want to request access")
+        if not self._authorize_user(message.from_user.id):
             return
 
-        file_name = bot_utils.make_and_save_snapshot()
+        file_name = cam.make_and_save_snapshot()
         temp_file = open(file_name, 'rb')
         try:
             print("Sending...")

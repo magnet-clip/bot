@@ -1,6 +1,7 @@
 import config
 import telebot
 import bot_utils
+import bot_camera
 import bot_events
 import time
 import logging
@@ -18,8 +19,9 @@ telebot.logger.setLevel(logging.WARN)
 
 man = bot_utils.Config()
 bot = telebot.TeleBot(config.token, threaded=False)
+cam = bot_camera.Camera()
 
-bot_handler = bot_events.Handler(bot, man)
+bot_handler = bot_events.Handler(bot, man, cam)
 
 #@bot.inline_handler(lambda query: len(query.query) > 0)
 #def inline_handler(query):
@@ -49,11 +51,6 @@ def ban_user(message):
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
     bot_handler.make_snapshot(message)
-
-#@bot.message_handler(content_types=["text"])
-#def repeat_all_messages(message):
-#    print("Got message %s from %s id %s" % (message.text, message.from_user.first_name, message.from_user.id))
-#    bot.send_message(message.chat.id, message.text)
 
 if __name__ == '__main__':
     while True:

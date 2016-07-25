@@ -1,26 +1,6 @@
-import time
-import random
 import os
-import shutil
 import configparser
-import picamera
 import re
-
-def get_temp_file_name():
-    return str(random.randint(10000, 99999)) + "_" + str(int(round(time.time() * 1000)))
-
-def make_and_save_snapshot():
-    file_name = "./snaps/" + get_temp_file_name() + ".jpg"
-    print("File is %s" % file_name)
-    temp_file = open(file_name, 'wb')
-    with picamera.PiCamera() as camera:
-        camera.resolution = (640, 480)
-        #camera.start_preview()
-        time.sleep(2)
-        camera.capture(temp_file)
-        temp_file.close()
-    return file_name
-
 
 def clear_folder(folder):
     for the_file in os.listdir(folder):
@@ -49,7 +29,13 @@ class Config:
     FAIL = "FAIL"
     OK = "OK"
 
-    def __init__(self):
+    def __init__(self, config_file_name=""):
+        if config_file_name != "":
+            self._CONFIG_FILE = config_file_name
+        
+        if not os.path.isfile("./" + self._CONFIG_FILE):
+            open("./" + self._CONFIG_FILE).close()
+        
         self._config = configparser.ConfigParser()
         self._config.read("./" + self._CONFIG_FILE)
 
