@@ -32,6 +32,10 @@ bot_handler = bot_events.Handler(bot, man, cam)
 def set_boss(message):
     bot_handler.set_boss(message)
 
+@bot.message_handler(commands=['resign'])
+def resign(message):
+    bot_handler.resign(message)
+
 @bot.message_handler(commands=['getaccess'])
 def get_access(message):
     bot_handler.get_access(message)

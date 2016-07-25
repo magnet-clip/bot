@@ -28,6 +28,12 @@ class Config:
     DONE = "DONE"
     FAIL = "FAIL"
     OK = "OK"
+    
+    def _ensure_superuser_section(self):
+        if not self._config.has_section("superuser"):
+            self._config.add_section("superuser")
+            self._config["superuser"]["id"] = 'NONE'
+            self.save()
 
     def __init__(self, config_file_name=""):
         if config_file_name != "":
@@ -52,13 +58,20 @@ class Config:
             return self._config[uid]["status"] == "granted"
 
         return False
+        
+    def dispose_super_user(self):
+        self._ensure_superuser_section()
+        self._config["superuser"]["id"] = 'NONE'
+        self._save()
 
     def has_super_user(self):
         print("Current superuser id is %s" % self._config["superuser"]["id"])
+        self._ensure_superuser_section()
         return self._config["superuser"]["id"] != 'NONE'
 
     def is_super_user(self, user_id):
         uid = str(user_id)
+        self._ensure_superuser_section()
         return self._config["superuser"]["id"] == uid
 
     def set_super_user(self, user_id):

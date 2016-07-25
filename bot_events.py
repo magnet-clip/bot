@@ -49,6 +49,16 @@ class Handler():
         else:
             bot.send_message(message.chat.id, "Nope")
             
+    def resign(self, message):
+        bot = self.bot
+        man = self.man
+        print("User %s id [%s] wants to be resign" % (message.from_user.first_name, message.from_user.id))
+        user_id = message.from_user.id
+        
+        if man.is_super_user(user_id):
+            man.dispose_super_user()
+            bot.send_message(message.chat.id, "We have a vacancy now")
+            
     def get_access(self, message):
         bot = self.bot
         man = self.man
@@ -62,12 +72,14 @@ class Handler():
             bot.send_message(user_id, "No and don't ask again!")
         else:
             print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
-            bot.send_message(
-                man.get_admin_id(),  \
-                "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(message.from_user.first_name, user_id) \
-            )
             bot.send_message(user_id, "Your application is under review")
             bot_utils.register_user_pending(user_id)
+            
+            if man.has_super_user():
+                bot.send_message(
+                    man.get_admin_id(),  \
+                    "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(message.from_user.first_name, user_id) \
+                )
 
     def grant_access(self, message):
         print("Grant access command")
