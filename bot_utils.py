@@ -90,6 +90,9 @@ class Config:
     def get_admin_id(self):
         return self._config["superuser"]["id"]
 
+    def user_exists(self, user_id):
+        return self._config.has_section(user_id)
+
     def is_user_pending(self, user_id):
         uid = str(user_id)
         if user_id in self._config:
@@ -106,12 +109,10 @@ class Config:
 
     def register_user_pending(self, user_id):
         uid = str(user_id)
-        if user_id in self._config:
-            return self.FAIL
+        if user_id in self._config: return
         self._config.add_section(uid)
         self._config[uid]["status"] = "pending"
         self.save()
-        return self.OK
 
     def grant_access(self, user_id):
         uid = str(user_id)
