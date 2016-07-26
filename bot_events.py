@@ -15,16 +15,15 @@ class Handler():
             return False
 
         return True
-        
+
     def _authorize_user(self, user_id):
         bot = self.bot
         man = self.man
         if not man.is_user_allowed(user_id):
             bot.send_message(user_id, "No access! Type /getaccess if you want to request access")
             return False
-            
+
         return True
-       
 
     def _fetch_user_id(self, text, chat_id):
         bot = self.bot
@@ -48,17 +47,17 @@ class Handler():
             bot.send_message(message.chat.id, "I know")
         else:
             bot.send_message(message.chat.id, "Nope")
-            
+
     def resign(self, message):
         bot = self.bot
         man = self.man
         print("User %s id [%s] wants to be resign" % (message.from_user.first_name, message.from_user.id))
         user_id = message.from_user.id
-        
+
         if man.is_super_user(user_id):
             man.dispose_super_user()
             bot.send_message(message.chat.id, "We have a vacancy now")
-            
+
     def get_access(self, message):
         bot = self.bot
         man = self.man
@@ -74,7 +73,7 @@ class Handler():
             print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
             bot.send_message(user_id, "Your application is under review")
             bot_utils.register_user_pending(user_id)
-            
+
             if man.has_super_user():
                 bot.send_message(
                     man.get_admin_id(),  \
