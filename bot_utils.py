@@ -1,27 +1,5 @@
 import os
 import configparser
-import re
-
-def clear_folder(folder):
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
-
-def fetch_id(text, command):
-    regex = "^/{0} +(\d+)$".format(command)
-    print("... regex is %s" % regex)
-    pattern = re.compile(regex)
-    matches = re.findall(pattern, text)
-    print(matches)
-
-    if len(matches) == 0:
-        return None
-    else:
-        return matches[0]
 
 class Config:
     _CONFIG_FILE = "bot.config"
@@ -93,43 +71,66 @@ class Config:
     def user_exists(self, user_id):
         return self._config.has_section(user_id)
 
-    def is_user_pending(self, user_id):
+    def _check_by_criteria(self, user_id, value):
         uid = str(user_id)
         if user_id in self._config:
-            return self._config[uid]["status"] == "pending"
+            return self._config[uid]["status"] == value
         else:
             return False
+
+    def is_user_granted(self, user_id):
+        return self._check_by_criteria(user_id, "granted")
+
+    def is_user_pending(self, user_id):
+        return self._check_by_criteria(user_id, "pending")
 
     def is_user_banned(self, user_id):
-        uid = str(user_id)
-        if uid in self._config:
-            return self._config[uid]["status"] == "banned"
-        else:
-            return False
+        return self._check_by_criteria(user_id, "banned")
 
-    def register_user_pending(self, user_id):
+    def register_user_pending(self, user_id, user_name=""):
         uid = str(user_id)
         if user_id in self._config: return
         self._config.add_section(uid)
         self._config[uid]["status"] = "pending"
+        self._config[uid]["name"] = user_name
         self.save()
 
     def grant_access(self, user_id):
         uid = str(user_id)
         if not (user_id in self._config):
-            self._config.add_section(uid)
+            return False
         self._config[uid]["status"] = "granted"
         self.save()
+        return True
 
     def ban_user(self, user_id):
         uid = str(user_id)
         if not (user_id in self._config):
-            self._config.add_section(uid)
+            return False
         self._config[uid]["status"] = "banned"
         self.save()
+        return True
 
     def delete_user(self, user_id):
         uid = str(user_id)
         if user_id in self._config:
             self._config.remove_section(uid)
         self.save()
+
+
+    def _list_by_criteria(self, criteria):
+        res = []
+        for name in self._config.section():
+            if name != 'superuser' and criteria(name):
+                res.append((name, self._config[name]['name']))
+        return res
+
+
+    def list_banned(self):
+        return self._list_by_criteria(self.is_user_banned)
+
+    def list_granted(self):
+        return self._list_by_criteria(self.is_user_granted)
+
+    def list_pending(self):
+        return self._list_by_criteria(self.is_user_pending)

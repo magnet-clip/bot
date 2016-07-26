@@ -1,4 +1,4 @@
-import bot_utils
+import bot_helper
 
 class Handler():
     def __init__(self, bot, man, cam):
@@ -28,7 +28,7 @@ class Handler():
     def _fetch_user_id(self, text, chat_id):
         bot = self.bot
 
-        grantee_id = bot_utils.fetch_id(text, 'grant')
+        grantee_id = bot_helper.fetch_id(text, 'grant')
         if grantee_id == None:
             bot.send_message(chat_id, "Failed to fetch user id")
 
@@ -72,7 +72,7 @@ class Handler():
         else:
             print("User %s id [%s] wants to get access" % (message.from_user.first_name, user_id))
             bot.send_message(user_id, "Your application is under review")
-            bot_utils.register_user_pending(user_id)
+            man.register_user_pending(user_id, message.from_user.username)
 
             if man.has_super_user():
                 bot.send_message(
@@ -131,6 +131,6 @@ class Handler():
             temp_file.close()
 
         try:
-            bot_utils.clear_folder("./snaps")
+            bot_helper.clear_folder("./snaps")
         except Exception as e:
             print("Failed to delete temp files: {0}".format(e))

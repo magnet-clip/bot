@@ -57,6 +57,7 @@ class TestConfig(unittest.TestCase):
 
     def test_can_grant_ban_user(self):
         man = self.man
+        man.register_user_pending('a_user')
         man.grant_access('a_user')
         self.assertTrue(man.user_exists('a_user'))
         self.assertFalse(man.is_user_pending('a_user'))
