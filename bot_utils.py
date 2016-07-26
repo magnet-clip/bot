@@ -62,7 +62,7 @@ class Config:
     def dispose_super_user(self):
         self._ensure_superuser_section()
         self._config["superuser"]["id"] = 'NONE'
-        self._save()
+        self.save()
 
     def has_super_user(self):
         self._ensure_superuser_section()
