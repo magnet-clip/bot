@@ -95,8 +95,10 @@ class Handler:
         if grantee_id is None:
             return
 
-        man.grant_access(grantee_id)
-        bot.send_message(grantee_id, "Willkommen!")
+        if not man.grant_access(grantee_id):
+            bot.send_message(message.from_user.id, "Failed to grant access")
+        else:
+            bot.send_message(grantee_id, "Willkommen!")
 
     def delete_user(self, message):
         print("Delete user command")

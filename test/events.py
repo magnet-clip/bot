@@ -235,6 +235,39 @@ class EventsTest(unittest.TestCase):
         bot.send_message.assert_called_with('2', "Failed to fetch user id")
         self.assertEqual(bot.send_message.call_count, 2)
 
+    def test_wrong_grant_access_nouser(self):
+        bot = Mock()
+        man = ConfManager('temp.config')
+        cam = Mock()
+
+        handler = Handler(bot, man, cam)
+
+        # set admin
+        message = Dictate({
+            'from_user': {
+                'first_name': 'R',
+                'id': '12'
+            },
+            'chat': {
+                'id': '1'
+            }
+        })
+        handler.set_boss(message)
+
+        # and grant access
+        message = Dictate({
+            'from_user': {
+                'first_name': 'R',
+                'id': '12'
+            },
+            'chat': {
+                'id': '2'
+            },
+            'text': '/grant13'
+        })
+        handler.grant_access(message)
+        bot.send_message.assert_called_with('12', "Failed to grant access")
+
 
 if __name__ == '__main__':
     unittest.main()
