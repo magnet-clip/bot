@@ -1,4 +1,4 @@
-import bot_helper
+import helper
 
 
 class Handler:
@@ -29,7 +29,7 @@ class Handler:
     def _fetch_user_id(self, text, chat_id):
         bot = self.bot
 
-        grantee_id = bot_helper.fetch_id(text, 'grant')
+        grantee_id = helper.fetch_id(text, 'grant')
         if grantee_id == None:
             bot.send_message(chat_id, "Failed to fetch user id")
 
@@ -133,6 +133,6 @@ class Handler:
             temp_file.close()
 
         try:
-            bot_helper.clear_folder("./snaps")
+            helper.clear_folder("./snaps")
         except Exception as e:
             print("Failed to delete temp files: {0}".format(e))
