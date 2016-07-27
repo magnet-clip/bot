@@ -30,7 +30,7 @@ class Handler:
         bot = self.bot
 
         grantee_id = helper.fetch_id(text, 'grant')
-        if grantee_id == None:
+        if grantee_id is None:
             bot.send_message(chat_id, "Failed to fetch user id")
 
         return grantee_id
@@ -77,19 +77,23 @@ class Handler:
 
             if man.has_super_user():
                 bot.send_message(
-                    man.get_admin_id(), \
+                    man.get_admin_id(),
                     "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(
-                        message.from_user.first_name, user_id) \
-                    )
+                        message.from_user.first_name, user_id)
+                )
 
     def grant_access(self, message):
         print("Grant access command")
         bot = self.bot
         man = self.man
 
-        if not self._authorize_admin(message.from_user.id, message.chat.id): return
+        if not self._authorize_admin(message.from_user.id, message.chat.id):
+            return
+
         grantee_id = self._fetch_user_id(message.text, message.chat.id)
-        if grantee_id == None: return
+
+        if grantee_id is None:
+            return
 
         man.grant_access(grantee_id)
         bot.send_message(grantee_id, "Willkommen!")
@@ -98,9 +102,12 @@ class Handler:
         print("Delete user command")
         man = self.man
 
-        if not self._authorize_admin(message.from_user.id, message.chat.id): return
+        if not self._authorize_admin(message.from_user.id, message.chat.id):
+            return
+
         grantee_id = self._fetch_user_id(message.text, message.chat.id)
-        if grantee_id == None: return
+        if grantee_id is None:
+            return
 
         man.delete_user(grantee_id)
 
@@ -108,9 +115,12 @@ class Handler:
         print("Ban user command")
         man = self.man
 
-        if not self._authorize_admin(message.from_user.id, message.chat.id): return
+        if not self._authorize_admin(message.from_user.id, message.chat.id):
+            return
+
         grantee_id = self._fetch_user_id(message.text, message.chat.id)
-        if grantee_id == None: return
+        if grantee_id is None:
+            return
 
         man.ban_user(grantee_id)
 

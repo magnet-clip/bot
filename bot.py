@@ -8,11 +8,13 @@ import logging
 import sys
 import signal
 
-def ctrlchandler(signum, frame):
+
+def ctrl_c_handler(signum, frame):
     print("Bye!")
     sys.exit()
 
-signal.signal(signal.SIGINT, ctrlchandler)
+
+signal.signal(signal.SIGINT, ctrl_c_handler)
 
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
@@ -23,8 +25,9 @@ cam = camera.Camera()
 
 bot_handler = handler.Handler(bot, man, cam)
 
-#@bot.inline_handler(lambda query: len(query.query) > 0)
-#def inline_handler(query):
+
+# @bot.inline_handler(lambda query: len(query.query) > 0)
+# def inline_handler(query):
 #	res = telebot.types.InlineQueryResultArticle( '1','Answer', telebot.types.InputTextMessageContent(query.query))
 #	bot.answer_inline_query(query.id, [res])
 
@@ -32,29 +35,36 @@ bot_handler = handler.Handler(bot, man, cam)
 def set_boss(message):
     bot_handler.set_boss(message)
 
+
 @bot.message_handler(commands=['resign'])
 def resign(message):
     bot_handler.resign(message)
+
 
 @bot.message_handler(commands=['getaccess'])
 def get_access(message):
     bot_handler.get_access(message)
 
+
 @bot.message_handler(commands=['grant'])
 def grant_access(message):
     bot_handler.grant_access(message)
+
 
 @bot.message_handler(commands=['delete'])
 def delete_user(message):
     bot_handler.delete_user(message)
 
+
 @bot.message_handler(commands=['ban'])
 def ban_user(message):
     bot_handler.ban_user(message)
 
+
 @bot.message_handler(commands=['photo'])
 def make_snapshot(message):
     bot_handler.make_snapshot(message)
+
 
 if __name__ == '__main__':
     while True:
