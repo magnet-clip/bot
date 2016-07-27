@@ -1,4 +1,5 @@
-**/config.py
+**/.idea
+/config.py
 *.swp
 __*
 *.pyc
