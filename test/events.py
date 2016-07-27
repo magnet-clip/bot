@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import Mock
 from handler import Handler
 from confmanager import ConfManager
-
+from dictate import Dictate
 
 class EventsTest(unittest.TestCase):
     def tearDown(self):
@@ -14,14 +14,20 @@ class EventsTest(unittest.TestCase):
         man = ConfManager('temp.config')
         cam = Mock()
         handler = Handler(bot, man, cam)
-        message = type('', (), {})()
-        message.from_user = type('', (), {})()
-        message.chat = type('', (), {})()
-        message.from_user.first_name = 'R'
-        message.from_user.id = '12'
-        message.chat.id = '13'
+
+        message = Dictate({
+            'from_user': {
+                'first_name': 'R',
+                'id': '12'
+            },
+            'chat': {
+                'id': '1'
+            }
+        })
+
         handler.set_boss(message)
         self.assertTrue(bot.send_message.called)
+
 
 if __name__ == '__main__':
     unittest.main()
