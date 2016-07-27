@@ -13,7 +13,7 @@ def clear_folder(folder):
 
 
 def fetch_id(text, command):
-    regex = "^/{0} ?+(\d+)$".format(command)
+    regex = "^/{0} *(\d+)$".format(command)
     print("... regex is %s" % regex)
     pattern = re.compile(regex)
     matches = re.findall(pattern, text)

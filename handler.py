@@ -78,7 +78,7 @@ class Handler:
             if man.has_super_user():
                 bot.send_message(
                     man.get_admin_id(),
-                    "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(
+                    "User {0} id [{1}] wants to get access; Type /grant{1} to allow, /ban{1} to ban him".format(
                         message.from_user.first_name, user_id)
                 )
 
