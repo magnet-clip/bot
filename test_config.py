@@ -1,10 +1,11 @@
 import unittest
-import bot_utils
+import confmanager
 import os
+
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
-        self.man = bot_utils.Config("test.config")
+        self.man = confmanager.ConfManager("test.config")
 
     def tearDown(self):
         os.unlink("./test.config")

@@ -1,6 +1,7 @@
 import bot_helper
 
-class Handler():
+
+class Handler:
     def __init__(self, bot, man, cam):
         self.bot = bot
         self.man = man
@@ -76,9 +77,10 @@ class Handler():
 
             if man.has_super_user():
                 bot.send_message(
-                    man.get_admin_id(),  \
-                    "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(message.from_user.first_name, user_id) \
-                )
+                    man.get_admin_id(), \
+                    "User {0} id [{1}] wants to get access; Type /grant {1} to allow, /ban {1} to ban him".format(
+                        message.from_user.first_name, user_id) \
+                    )
 
     def grant_access(self, message):
         print("Grant access command")

@@ -1,7 +1,8 @@
 import os
 import configparser
 
-class Config:
+
+class ConfManager:
     _CONFIG_FILE = "bot.config"
     DONE = "DONE"
     FAIL = "FAIL"
@@ -117,14 +118,12 @@ class Config:
             self._config.remove_section(uid)
         self.save()
 
-
     def _list_by_criteria(self, criteria):
         res = []
         for name in self._config.section():
             if name != 'superuser' and criteria(name):
                 res.append((name, self._config[name]['name']))
         return res
-
 
     def list_banned(self):
         return self._list_by_criteria(self.is_user_banned)

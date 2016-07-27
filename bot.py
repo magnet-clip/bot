@@ -1,8 +1,8 @@
 import config
 import telebot
-import bot_utils
-import bot_camera
-import bot_events
+import confmanager
+import camera
+import handler
 import time
 import logging
 import sys
@@ -17,11 +17,11 @@ signal.signal(signal.SIGINT, ctrlchandler)
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
 
-man = bot_utils.Config()
+man = confmanager.ConfManager()
 bot = telebot.TeleBot(config.token, threaded=False)
-cam = bot_camera.Camera()
+cam = camera.Camera()
 
-bot_handler = bot_events.Handler(bot, man, cam)
+bot_handler = handler.Handler(bot, man, cam)
 
 #@bot.inline_handler(lambda query: len(query.query) > 0)
 #def inline_handler(query):
