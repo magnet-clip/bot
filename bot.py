@@ -7,6 +7,7 @@ import time
 import logging
 import sys
 import signal
+import re
 
 
 def ctrl_c_handler(signum, frame):
@@ -24,6 +25,7 @@ bot = telebot.TeleBot(config.token, threaded=False)
 cam = camera.Camera()
 
 bot_handler = handler.Handler(bot, man, cam)
+user_message_re = "^/(ban|delete|grant) *(\d+)$"
 
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
@@ -46,19 +48,18 @@ def get_access(message):
     bot_handler.get_access(message)
 
 
-@bot.message_handler(commands=['grant'])
-def grant_access(message):
-    bot_handler.grant_access(message)
+@bot.message_handler(regexp=user_message_re)
+def handle_user_command(message):
+    pattern = re.compile(user_message_re)
+    matches = re.findall(pattern, message.text)
+    print(matches)
 
-
-@bot.message_handler(commands=['delete'])
-def delete_user(message):
-    bot_handler.delete_user(message)
-
-
-@bot.message_handler(commands=['ban'])
-def ban_user(message):
-    bot_handler.ban_user(message)
+    if matches[0][0] == 'grant':
+        bot_handler.grant_access(message, matches[0][1])
+    elif matches[0][0] == 'delete':
+        bot_handler.delete_user(message, matches[0][1])
+    elif matches[0][0] == 'ban':
+        bot_handler.ban_user(message, matches[0][1])
 
 
 @bot.message_handler(commands=['photo'])
@@ -110,17 +111,12 @@ if __name__ == '__main__':
 #	- 
 
 # Admin commands
-# /boss OK
-# /grant [id] OK
-# /delete [id] TODO
-# /ban [id] TODO
 # /watch [id] TODO
 # /unwatch [id] TODO
 # /who? lists ids and names of users watched TODO
 
 # Common commands
 # /help
-# /getaccess OK
 # /photo [center, topleft, topright, bottomleft, bottomright] makes a photo PARTIAL
 # /history [co2 / gas / temp / moist] [hour / {N} hours / day / week / month / year] sends a chart with data available
 # /alert turns on a siren (?)

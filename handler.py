@@ -26,15 +26,6 @@ class Handler:
 
         return True
 
-    def _fetch_user_id(self, text, chat_id):
-        bot = self.bot
-
-        grantee_id = helper.fetch_id(text, 'grant')
-        if grantee_id is None:
-            bot.send_message(chat_id, "Failed to fetch user id")
-
-        return grantee_id
-
     def set_boss(self, message):
         bot = self.bot
         man = self.man
@@ -82,7 +73,7 @@ class Handler:
                         message.from_user.first_name, user_id)
                 )
 
-    def grant_access(self, message):
+    def grant_access(self, message, grantee_id):
         print("Grant access command")
         bot = self.bot
         man = self.man
@@ -90,41 +81,26 @@ class Handler:
         if not self._authorize_admin(message.from_user.id, message.chat.id):
             return
 
-        grantee_id = self._fetch_user_id(message.text, message.chat.id)
-
-        if grantee_id is None:
-            return
-
         if not man.grant_access(grantee_id):
             bot.send_message(message.from_user.id, "Failed to grant access")
         else:
             bot.send_message(grantee_id, "Willkommen!")
 
-    def delete_user(self, message):
+    def delete_user(self, message, grantee_id):
         print("Delete user command")
-        man = self.man
-
         if not self._authorize_admin(message.from_user.id, message.chat.id):
             return
 
-        grantee_id = self._fetch_user_id(message.text, message.chat.id)
-        if grantee_id is None:
-            return
+        if not self.man.delete_user(grantee_id):
+            self.bot.send_message(message.from_user.id, "Failed to delete user")
 
-        man.delete_user(grantee_id)
-
-    def ban_user(self, message):
+    def ban_user(self, message, grantee_id):
         print("Ban user command")
-        man = self.man
-
         if not self._authorize_admin(message.from_user.id, message.chat.id):
             return
 
-        grantee_id = self._fetch_user_id(message.text, message.chat.id)
-        if grantee_id is None:
-            return
-
-        man.ban_user(grantee_id)
+        if not self.man.ban_user(grantee_id):
+            self.bot.send_message(message.from_user.id, "Failed to ban user")
 
     def make_snapshot(self, message):
         bot = self.bot
