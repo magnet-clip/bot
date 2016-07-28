@@ -108,6 +108,7 @@ class Handler:
         print("User %s id [%s] requested a photo" % (message.from_user.first_name, message.from_user.id))
 
         if not self._authorize_user(message.from_user.id):
+            bot.send_message(message.chat.id, "You have to be authorized to request photo")
             return
 
         file_name = cam.make_and_save_snapshot()

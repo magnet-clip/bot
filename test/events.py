@@ -7,14 +7,19 @@ from dictate import Dictate
 
 
 class EventsTest(unittest.TestCase):
+    def create_objects(self):
+        bot = Mock()
+        man = ConfManager('temp.config')
+        cam = Mock()
+
+        handler = Handler(bot, man, cam)
+        return handler, bot, man, cam
+
     def tearDown(self):
         os.unlink('./temp.config')
 
     def test_set_new_boss(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         message = Dictate({
             'from_user': {
@@ -31,10 +36,7 @@ class EventsTest(unittest.TestCase):
         bot.send_message.assert_called_with('1', "You are the king now")
 
     def test_set_new_boss_twice(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         message = Dictate({
             'from_user': {
@@ -53,10 +55,7 @@ class EventsTest(unittest.TestCase):
         bot.send_message.assert_called_with('1', "I know")
 
     def test_set_new_boss_when_one_exists(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         message = Dictate({
             'from_user': {
@@ -84,11 +83,7 @@ class EventsTest(unittest.TestCase):
         bot.send_message.assert_called_with('2', "Nope")
 
     def test_set_boss_and_resign(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         message = Dictate({
             'from_user': {
@@ -118,11 +113,7 @@ class EventsTest(unittest.TestCase):
         self.assertFalse(man.has_super_user())
 
     def test_set_boss_and_resign_from_other(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         message = Dictate({
             'from_user': {
@@ -151,11 +142,7 @@ class EventsTest(unittest.TestCase):
         self.assertEqual(man.get_admin_id(), '12')
 
     def test_simple_grant_access_request(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         # set admin
         message = Dictate({
@@ -197,16 +184,12 @@ class EventsTest(unittest.TestCase):
             },
             'text': '/grant13'
         })
-        handler.grant_access(message)
+        handler.grant_access(message, '13')
         bot.send_message.assert_called_with('13', "Willkommen!")
         self.assertEqual(bot.send_message.call_count, 4)
 
     def test_wrong_grant_command(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         # set admin
         message = Dictate({
@@ -231,16 +214,12 @@ class EventsTest(unittest.TestCase):
             },
             'text': '/grant'
         })
-        handler.grant_access(message)
-        bot.send_message.assert_called_with('2', "Failed to fetch user id")
+        handler.grant_access(message, '12')
+        bot.send_message.assert_called_with('12', "Failed to grant access")
         self.assertEqual(bot.send_message.call_count, 2)
 
     def test_wrong_grant_access_nouser(self):
-        bot = Mock()
-        man = ConfManager('temp.config')
-        cam = Mock()
-
-        handler = Handler(bot, man, cam)
+        handler, bot, man, cam = self.create_objects()
 
         # set admin
         message = Dictate({
@@ -265,8 +244,43 @@ class EventsTest(unittest.TestCase):
             },
             'text': '/grant13'
         })
-        handler.grant_access(message)
+        handler.grant_access(message, '12')
         bot.send_message.assert_called_with('12', "Failed to grant access")
+
+    def test_unauthorized_user_takes_photo(self):
+        handler, bot, man, cam = self.create_objects()
+
+        message = Dictate({
+            'from_user': {
+                'first_name': 'L',
+                'id': '12'
+            },
+            'chat': {
+                'id': '1'
+            }
+        })
+        handler.make_snapshot(message)
+        cam.make_and_save_snapshot.assert_not_called()
+        bot.send_photo.assert_not_called()
+        bot.send_message.assert_called_with('1', "You have to be authorized to request photo")
+
+
+    def test_authorized_user_takes_photo(self):
+        handler, bot, man, cam = self.create_objects()
+
+        message = Dictate({
+            'from_user': {
+                'first_name': 'L',
+                'id': '12'
+            },
+            'chat': {
+                'id': '1'
+            }
+        })
+        handler.make_snapshot(message)
+        cam.make_and_save_snapshot.assert_not_called()
+        bot.send_photo.assert_not_called()
+        bot.send_message.assert_called_with('1', "You have to be authorized to request photo")
 
 
 if __name__ == '__main__':

@@ -33,6 +33,9 @@ user_message_re = "^/(ban|delete|grant) *(\d+)$"
 #	res = telebot.types.InlineQueryResultArticle( '1','Answer', telebot.types.InputTextMessageContent(query.query))
 #	bot.answer_inline_query(query.id, [res])
 
+# -----------------------------
+# Boss-level commands
+# -----------------------------
 @bot.message_handler(commands=['boss'])
 def set_boss(message):
     bot_handler.set_boss(message)
@@ -41,11 +44,6 @@ def set_boss(message):
 @bot.message_handler(commands=['resign'])
 def resign(message):
     bot_handler.resign(message)
-
-
-@bot.message_handler(commands=['getaccess'])
-def get_access(message):
-    bot_handler.get_access(message)
 
 
 @bot.message_handler(regexp=user_message_re)
@@ -60,6 +58,14 @@ def handle_user_command(message):
         bot_handler.delete_user(message, matches[0][1])
     elif matches[0][0] == 'ban':
         bot_handler.ban_user(message, matches[0][1])
+
+
+# -----------------------------
+# User-level commands
+# -----------------------------
+@bot.message_handler(commands=['getaccess'])
+def get_access(message):
+    bot_handler.get_access(message)
 
 
 @bot.message_handler(commands=['photo'])
