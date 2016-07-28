@@ -68,6 +68,43 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(man.is_user_pending('a_user'))
         self.assertTrue(man.is_user_banned('a_user'))
 
+    def test_list_users(self):
+        man = self.man
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 0)
+        self.assertEqual(len(man.list_pending()), 0)
+
+        man.register_user_pending(1, "pending")
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 0)
+        self.assertEqual(len(man.list_pending()), 1)
+
+        man.grant_access(1)
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 1)
+        self.assertEqual(len(man.list_pending()), 0)
+
+        man.register_user_pending(2, "pending")
+        man.ban_user(2)
+        self.assertEqual(len(man.list_banned()), 1)
+        self.assertEqual(len(man.list_granted()), 1)
+        self.assertEqual(len(man.list_pending()), 0)
+
+        man.register_user_pending(3, "pending")
+        man.delete_user(2)
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 1)
+        self.assertEqual(len(man.list_pending()), 1)
+
+        man.delete_user(3)
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 1)
+        self.assertEqual(len(man.list_pending()), 0)
+
+        man.delete_user(1)
+        self.assertEqual(len(man.list_banned()), 0)
+        self.assertEqual(len(man.list_granted()), 0)
+        self.assertEqual(len(man.list_pending()), 0)
 
 if __name__ == '__main__':
     unittest.main()

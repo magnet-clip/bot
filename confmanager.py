@@ -98,7 +98,7 @@ class ConfManager:
 
     def grant_access(self, user_id):
         uid = str(user_id)
-        if not (user_id in self._config):
+        if not (uid in self._config):
             return False
         self._config[uid]["status"] = "granted"
         self.save()
@@ -106,7 +106,7 @@ class ConfManager:
 
     def ban_user(self, user_id):
         uid = str(user_id)
-        if not (user_id in self._config):
+        if not (uid in self._config):
             return False
         self._config[uid]["status"] = "banned"
         self.save()
@@ -114,13 +114,13 @@ class ConfManager:
 
     def delete_user(self, user_id):
         uid = str(user_id)
-        if user_id in self._config:
+        if uid in self._config:
             self._config.remove_section(uid)
         self.save()
 
     def _list_by_criteria(self, criteria):
         res = []
-        for name in self._config.section():
+        for name in self._config.sections():
             if name != 'superuser' and criteria(name):
                 res.append((name, self._config[name]['name']))
         return res
