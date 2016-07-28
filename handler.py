@@ -112,14 +112,18 @@ class Handler:
             return
 
         file_name = cam.make_and_save_snapshot()
-        temp_file = open(file_name, 'rb')
         try:
-            print("Sending...")
-            bot.send_photo(message.chat.id, temp_file)
+            temp_file = open(file_name, 'rb')
+            try:
+                print("Sending...")
+                bot.send_photo(message.chat.id, temp_file)
+            except Exception as e:
+                bot.send_message(message.chat.id, "Failed to send a photo :(")
+                print("Failed to send photo: {0}".format(e))
+            finally:
+                temp_file.close()
         except Exception as e:
-            print("Failed to send photo: {0}".format(e))
-        finally:
-            temp_file.close()
+            bot.send_message(message.chat.id, "Failed to send a photo :(")
 
         try:
             helper.clear_folder("./snaps")

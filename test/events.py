@@ -98,7 +98,8 @@ class EventsTest(unittest.TestCase):
         # request access
         message = create_message(id='13', name='L', username='Vova', chat_id='2', text="/getaccess")
         handler.get_access(message)
-        bot.send_message.assert_called_with('12', "User L id [13] wants to get access; Type /grant13 to allow, /ban13 to ban him")
+        bot.send_message.assert_called_with('12',
+                                            "User L id [13] wants to get access; Type /grant13 to allow, /ban13 to ban him")
         bot.send_message.assert_any_call('13', "Your application is under review")
         self.assertEqual(bot.send_message.call_count, 3)
 
@@ -112,15 +113,7 @@ class EventsTest(unittest.TestCase):
         handler, bot, man, cam = create_objects()
 
         # set admin
-        message = Dictate({
-            'from_user': {
-                'first_name': 'R',
-                'id': '12'
-            },
-            'chat': {
-                'id': '1'
-            }
-        })
+        message = create_message(id='12', name='R', chat_id='1')
         handler.set_boss(message)
 
         # sent wrong grant message
@@ -142,15 +135,7 @@ class EventsTest(unittest.TestCase):
         handler, bot, man, cam = create_objects()
 
         # set admin
-        message = Dictate({
-            'from_user': {
-                'first_name': 'R',
-                'id': '12'
-            },
-            'chat': {
-                'id': '1'
-            }
-        })
+        message = create_message(id='12', name='R', chat_id='1')
         handler.set_boss(message)
 
         # and grant access
@@ -170,37 +155,26 @@ class EventsTest(unittest.TestCase):
     def test_unauthorized_user_takes_photo(self):
         handler, bot, man, cam = create_objects()
 
-        message = Dictate({
-            'from_user': {
-                'first_name': 'L',
-                'id': '12'
-            },
-            'chat': {
-                'id': '1'
-            }
-        })
+        message = create_message(id='12', name='R', chat_id='1')
         handler.make_snapshot(message)
         cam.make_and_save_snapshot.assert_not_called()
         bot.send_photo.assert_not_called()
         bot.send_message.assert_called_with('1', "You have to be authorized to request photo")
-
 
     def test_authorized_user_takes_photo(self):
         handler, bot, man, cam = create_objects()
 
-        message = Dictate({
-            'from_user': {
-                'first_name': 'L',
-                'id': '12'
-            },
-            'chat': {
-                'id': '1'
-            }
-        })
+        message = create_message(id='12', name='R', chat_id='1')
+        handler.set_boss(message)
+        message = create_message(id='13', name='L', username='Vova', chat_id='2', text="/getaccess")
+        handler.get_access(message)
+        message = create_message(id='12', name='R', chat_id='1', text='/grant13')
+        handler.grant_access(message, '13')
+        bot.send_message.reset_mock()
+        message = create_message(id='13', name='L', chat_id='2', text="/photo")
         handler.make_snapshot(message)
-        cam.make_and_save_snapshot.assert_not_called()
-        bot.send_photo.assert_not_called()
-        bot.send_message.assert_called_with('1', "You have to be authorized to request photo")
+        self.assertEqual(cam.make_and_save_snapshot.call_count, 1)
+        bot.send_message.assert_called_with('2', 'Failed to send a photo :(')
 
 
 if __name__ == '__main__':
