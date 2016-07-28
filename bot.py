@@ -26,7 +26,7 @@ cam = camera.Camera()
 
 bot_handler = handler.Handler(bot, man, cam)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
-
+list_users_re = "^/list(g|p|d)?$"
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
 # def inline_handler(query):
@@ -50,7 +50,6 @@ def resign(message):
 def handle_user_command(message):
     pattern = re.compile(user_message_re)
     matches = re.findall(pattern, message.text)
-    print(matches)
 
     if matches[0][0] == 'grant':
         bot_handler.grant_access(message, matches[0][1])
@@ -59,6 +58,13 @@ def handle_user_command(message):
     elif matches[0][0] == 'ban':
         bot_handler.ban_user(message, matches[0][1])
 
+
+@bot.message_handler(regexp=list_users_re)
+def handle_list_users(message):
+    pattern = re.compile(user_message_re)
+    matches = re.findall(pattern, message.text)
+
+    bot_handler.list_users(message, matches[0])
 
 # -----------------------------
 # User-level commands

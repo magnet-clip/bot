@@ -1,6 +1,12 @@
 import helper
 
 
+def make_answer_list(items):
+    res = ""
+    for id, name in items:
+        res += " * {0}: /grant{1}, /delete{1}, /ban{1]".format(name, id)
+    return res
+
 class Handler:
     def __init__(self, bot, man, cam):
         self.bot = bot
@@ -101,6 +107,28 @@ class Handler:
 
         if not self.man.ban_user(grantee_id):
             self.bot.send_message(message.from_user.id, "Failed to ban user")
+
+    def list_users(self, message, kind):
+        man = self.man
+        if not self._authorize_admin(message.from_user.id, message.chat_id):
+            return
+
+        if kind == "banned":
+            answer = make_answer_list(man.list_banned())
+        elif kind == "granted":
+            answer = make_answer_list(man.list_granted())
+        elif kind == "pending":
+            answer = make_answer_list(man.list_pending())
+        else:
+            answer = """
+            Choose one:
+                * /listg - granted
+                * /listp - pending
+                * /listb - banned
+            """
+
+        self.bot.send_message(message.chat_id, answer)
+
 
     def make_snapshot(self, message):
         bot = self.bot
