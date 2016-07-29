@@ -4,7 +4,7 @@ import helper
 def make_answer_list(items):
     res = ""
     for id, name in items:
-        res += " * {0}: /grant{1}, /delete{1}, /ban{1]".format(name, id)
+        res += " * {0}: /grant{1}, /delete{1}, /ban{1}\r\n".format(name, id)
     return res
 
 
@@ -110,15 +110,17 @@ class Handler:
             self.bot.send_message(message.from_user.id, "Failed to ban user")
 
     def list_users(self, message, kind):
+        print("List users, kind: {0}!".format(kind))
         man = self.man
-        if not self._authorize_admin(message.from_user.id, message.chat_id):
+        if not self._authorize_admin(message.from_user.id, message.chat.id):
             return
 
-        if kind == "banned":
+        answer = ""
+        if kind == "b":
             answer = make_answer_list(man.list_banned())
-        elif kind == "granted":
+        elif kind == "g":
             answer = make_answer_list(man.list_granted())
-        elif kind == "pending":
+        elif kind == "p":
             answer = make_answer_list(man.list_pending())
         else:
             answer = """
@@ -127,8 +129,9 @@ class Handler:
                 * /listp - pending
                 * /listb - banned
             """
-
-        self.bot.send_message(message.chat_id, answer)
+        if len(answer) == 0:
+            answer = "No users!"
+        self.bot.send_message(message.chat.id, answer)
 
     def make_snapshot(self, message):
         bot = self.bot

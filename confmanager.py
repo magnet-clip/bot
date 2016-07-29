@@ -116,13 +116,19 @@ class ConfManager:
         uid = str(user_id)
         if uid in self._config:
             self._config.remove_section(uid)
-        self.save()
+            self.save()
+            return True
+        return False
 
     def _list_by_criteria(self, criteria):
         res = []
         for name in self._config.sections():
+            print(" --> %s" % name)
             if name != 'superuser' and criteria(name):
-                res.append((name, self._config[name]['name']))
+                if 'name' in self._config[name]:
+                    res.append((name, self._config[name]['name']))
+                else:
+                    res.append((name, ""))
         return res
 
     def list_banned(self):

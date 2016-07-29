@@ -26,7 +26,7 @@ cam = camera.Camera()
 
 bot_handler = handler.Handler(bot, man, cam)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
-list_users_re = "^/list(g|p|d)?$"
+list_users_re = "/list(g|p|b|)"
 
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
@@ -62,10 +62,13 @@ def handle_user_command(message):
 
 @bot.message_handler(regexp=list_users_re)
 def handle_list_users(message):
-    pattern = re.compile(user_message_re)
+    pattern = re.compile(list_users_re)
     matches = re.findall(pattern, message.text)
 
-    bot_handler.list_users(message, matches[0])
+    if len(matches) > 0:
+        bot_handler.list_users(message, matches[0])
+    else:
+        bot_handler.list_users(message, "")
 
 
 # -----------------------------
