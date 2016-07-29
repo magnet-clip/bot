@@ -7,6 +7,7 @@ def make_answer_list(items):
         res += " * {0}: /grant{1}, /delete{1}, /ban{1]".format(name, id)
     return res
 
+
 class Handler:
     def __init__(self, bot, man, cam):
         self.bot = bot
@@ -128,7 +129,6 @@ class Handler:
             """
 
         self.bot.send_message(message.chat_id, answer)
-
 
     def make_snapshot(self, message):
         bot = self.bot

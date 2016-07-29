@@ -28,6 +28,7 @@ bot_handler = handler.Handler(bot, man, cam)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "^/list(g|p|d)?$"
 
+
 # @bot.inline_handler(lambda query: len(query.query) > 0)
 # def inline_handler(query):
 #	res = telebot.types.InlineQueryResultArticle( '1','Answer', telebot.types.InputTextMessageContent(query.query))
@@ -66,6 +67,7 @@ def handle_list_users(message):
 
     bot_handler.list_users(message, matches[0])
 
+
 # -----------------------------
 # User-level commands
 # -----------------------------
@@ -88,20 +90,6 @@ if __name__ == '__main__':
             print("Some polling error happened: {0}".format(e))
             print("Will try to reconnect in 10 seconds")
             time.sleep(10)
-
-# Notifications are:
-# ------------------------------
-#
-# For a regular user:
-#  - motion
-#  - gas / co2 / temperature / moisture by threshold
-
-
-# Admin commands
-# /users [banned|granted|pending]
-# /watch [id] TODO
-# /unwatch [id] TODO
-# /who? lists ids and names of users watched TODO
 
 # Common commands
 # /help
