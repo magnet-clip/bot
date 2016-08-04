@@ -1,4 +1,5 @@
 import config
+import arduino
 import telebot
 import confmanager
 import camera
@@ -10,7 +11,10 @@ import signal
 import re
 
 
+ino = arduino.ArduinoSerial('/dev/ttyUSB0', 9600)
+
 def ctrl_c_handler(signum, frame):
+    ino.shutdown()
     print("Bye!")
     sys.exit()
 
@@ -27,6 +31,8 @@ cam = camera.Camera()
 bot_handler = handler.Handler(bot, man, cam)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "/list(g|p|b|)"
+
+
 
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
