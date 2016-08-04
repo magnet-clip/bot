@@ -7,8 +7,8 @@ class ArduinoSerial:
     def __init__(self, port, speed):
         self.conn = serial.Serial(port, speed, timeout=0)
         print("Opening serial connection")
-        #self.thread = threading.Thread(target=self.run)
-        #self.thread.start()
+        # self.thread = threading.Thread(target=self.run)
+        # self.thread.start()
         self.interrupted = False
 
     def run(self):
@@ -21,7 +21,7 @@ class ArduinoSerial:
 
     def shutdown(self):
         self.interrupted = True
-        #self.thread.join()
+        # self.thread.join()
         self.conn.close()
         print("Closed serial connection")
 
