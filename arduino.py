@@ -1,29 +1,35 @@
 import serial
 import threading
+import queue
 
 
-class ArduinoSerial:
-    def __init__(self, port, speed):
-        self.conn = serial.Serial(port, speed, timeout=0)
-        print("Opening serial connection")
-        # self.thread = threading.Thread(target=self.run)
-        # self.thread.start()
+class SerialHandler(threading.Thread):
+    def __init__(self, cnn: serial.Serial):
+        super().__init__()
+        self.conn = cnn
         self.interrupted = False
+        self.queue = queue.Queue()
+
+    def interrupt(self):
+        self.interrupted = True
 
     def run(self):
-        while not self.interrupted:
-            line = self.conn.readline()
-            if line != b'':
-                print(line)
-                pass
-        print("Interrupted!")
+        try:
+            while not self.interrupted:
+                message = self.conn.readline()
+                if message != b'':
+                    decoded = message.decode('utf-8')
+                    items = decoded.split(';')
+                    # todo save into database
+                    for item in items:
+                        print(item)
+                    print("--------------")
+                if not self.queue.empty():
+                    # todo send message to ino
+                    item = self.queue.get()
+                    print("Got message [%s]!" % item)
+        finally:
+            self.conn.close()
 
-    def shutdown(self):
-        self.interrupted = True
-        # self.thread.join()
-        self.conn.close()
-        print("Closed serial connection")
-
-    def send_command(self, angle1, angle2, devices):
-        # todo pack into a command
-        pass
+    def send_message(self, item):
+        self.queue.put(item)
