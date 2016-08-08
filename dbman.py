@@ -25,4 +25,5 @@ class DatabaseManager:
         threshold = (datetime.now() - delta).timestamp()
         with self.lock:
             record = Query()
-            return self.db_conn.search(record.time > threshold)
+            items = self.db_conn.search(record.time > threshold)
+            return list([{'time': datetime.fromtimestamp(item['time']), 'value': item[field]} for item in items])

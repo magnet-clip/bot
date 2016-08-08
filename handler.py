@@ -1,4 +1,7 @@
 import helper
+import dbman
+from datetime import timedelta
+import pygal
 
 
 def make_answer_list(items):
@@ -9,10 +12,11 @@ def make_answer_list(items):
 
 
 class Handler:
-    def __init__(self, bot, man, cam):
+    def __init__(self, bot, man, cam, db: dbman.DatabaseManager):
         self.bot = bot
         self.man = man
         self.cam = cam
+        self.db = db
 
     def _authorize_admin(self, user_id, chat_id):
         bot = self.bot
@@ -132,6 +136,44 @@ class Handler:
         if len(answer) == 0:
             answer = "No users!"
         self.bot.send_message(message.chat.id, answer)
+
+
+    def answer(self, message, text):
+        bot.send_message(message.chat.id, text)
+
+    def make_and_send_plot(self, message, field):
+        bot = self.bot
+        items = self.db.fetch_last(timedelta(seconds=5), field)
+        print(items)
+        try:
+            chart = pygal.Line()
+            times = map(lambda x: x.strftime('%H:%M:%S'), [item['time'] for item in items])
+            labels = list(map(str, times))
+            print(labels)
+            chart.x_labels = labels
+
+            values = list([float(item['value']) for item in items])
+            print(values)
+
+            chart.add(field, values)
+            chart.render_to_file('./test.png')
+        except Exception as e:
+            print(e)
+
+        file_name = './test.png'
+
+        try:
+            temp_file = open(file_name, 'rb')
+            try:
+                print("Sending...")
+                bot.send_photo(message.chat.id, temp_file)
+            except Exception as e:
+                bot.send_message(message.chat.id, "Failed to send a photo :(")
+                print("Failed to send photo: {0}".format(e))
+            finally:
+                temp_file.close()
+        except Exception as e:
+            bot.send_message(message.chat.id, "Failed to send a photo :(")
 
     def make_snapshot(self, message):
         bot = self.bot

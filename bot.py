@@ -10,9 +10,11 @@ import sys
 import signal
 import re
 import serial
+import dbman
 
+db = dbman.DatabaseManager()
 conn = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.5)
-sh = arduino.SerialHandler(conn)
+sh = arduino.SerialHandler(conn, db)
 sh.start()
 
 
@@ -31,9 +33,10 @@ man = confmanager.ConfManager()
 bot = telebot.TeleBot(config.token, threaded=False)
 cam = camera.Camera()
 
-bot_handler = handler.Handler(bot, man, cam)
+bot_handler = handler.Handler(bot, man, cam, db)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "/list(g|p|b|)"
+show_chart = "/show +(t|h|co|gas)"
 
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
@@ -90,6 +93,28 @@ def get_access(message):
 def make_snapshot(message):
     bot_handler.make_snapshot(message)
 
+@bot.message_handler(regexp=show_chart)
+def show_the_chart(message):
+    print("Yo!")
+    pattern = re.compile(show_chart)
+    print(show_chart)
+    matches = re.findall(pattern, message.text)
+
+    print(matches)
+    field = ""
+    if matches[0] == 'co':
+        field = 'co2'
+    elif matches[0] == 'gas':
+        field = 'gas'
+    elif matches[0] == 't':
+        field = 'temperature'
+    elif matches[0] == 'h':
+        field = 'humidity'
+    else:
+        bot_handler.answer(message, "Wrong field")
+        return
+
+    bot_handler.make_and_send_plot(message, field)
 
 if __name__ == '__main__':
     while True:

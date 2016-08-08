@@ -2,6 +2,7 @@ import serial
 import threading
 import queue
 from dbman import DatabaseManager
+import re
 
 
 class SerialHandler(threading.Thread):
@@ -21,6 +22,7 @@ class SerialHandler(threading.Thread):
                 message = self.conn.readline()
                 if message != b'':
                     decoded = message.decode('utf-8')
+                    decoded = re.sub("[\r\n]", "", decoded)
                     items = decoded.split(';')
 
                     if len(items) < 7:

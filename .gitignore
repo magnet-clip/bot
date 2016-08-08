@@ -1,7 +1,9 @@
 .idea/
+/database.json
 /config.py
 *.swp
 __*
 *.pyc
 *.jpg
 *.log
+*.png
