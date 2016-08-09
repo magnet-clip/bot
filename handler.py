@@ -142,13 +142,13 @@ class Handler:
         bot.send_message(message.chat.id, text)
 
     def make_and_send_plot(self, message, field):
+        file_name = './test.png'
         bot = self.bot
         items = self.db.fetch_last(timedelta(seconds=5), field)
         print(items)
         try:
             chart = pygal.Line()
-            times = map(lambda x: x.strftime('%H:%M:%S'), [item['time'] for item in items])
-            labels = list(map(str, times))
+            labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])
             print(labels)
             chart.x_labels = labels
 
@@ -156,11 +156,9 @@ class Handler:
             print(values)
 
             chart.add(field, values)
-            chart.render_to_file('./test.png')
+            chart.render_to_file(file_name)
         except Exception as e:
             print(e)
-
-        file_name = './test.png'
 
         try:
             temp_file = open(file_name, 'rb')
