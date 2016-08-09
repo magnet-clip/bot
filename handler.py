@@ -2,6 +2,9 @@ import helper
 import dbman
 from datetime import timedelta
 import pygal
+from wand.api import library
+import wand.color
+import wand.image
 
 
 def make_answer_list(items):
@@ -142,10 +145,13 @@ class Handler:
         bot.send_message(message.chat.id, text)
 
     def make_and_send_plot(self, message, field):
-        file_name = './test.png'
+        file_name = './test.svg'
+        png_filename = './test.png'
         bot = self.bot
         items = self.db.fetch_last(timedelta(seconds=5), field)
         print(items)
+
+        ## -- creating chart
         try:
             chart = pygal.Line()
             labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])
@@ -156,12 +162,29 @@ class Handler:
             print(values)
 
             chart.add(field, values)
-            chart.render_to_png(file_name)
+            chart.render_to_file(file_name)
         except Exception as e:
             print(e)
 
+
+        ## -- converting to png from svg
         try:
-            temp_file = open(file_name, 'rb')
+            with open(file_name, 'rb') as svg_file:
+                with wand.image.Image(blob=svg_file.read(), format='svg') as img:
+                    with wand.color.Color('transparent') as bg_color:
+                        library.MagickSetBackgroundColor(img.wand, bg_color.resource)
+                    png_image = img.make_blob('png32')
+
+                    with open(png_filename, 'wb') as out:
+                        out.write(png_image)
+
+        except Exception as e:
+            print(e)
+
+
+        ## -- sending to user
+        try:
+            temp_file = open(png_filename, 'rb')
             try:
                 print("Sending...")
                 bot.send_photo(message.chat.id, temp_file)
