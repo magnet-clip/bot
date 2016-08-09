@@ -1,10 +1,7 @@
 import helper
 import dbman
 from datetime import timedelta
-import pygal
-from wand.api import library
-import wand.color
-import wand.image
+import matplotlib.pyplot as plt
 
 
 def make_answer_list(items):
@@ -148,36 +145,22 @@ class Handler:
         file_name = './test.svg'
         png_filename = './test.png'
         bot = self.bot
-        items = self.db.fetch_last(timedelta(seconds=5), field)
+        items = self.db.fetch_last(timedelta(seconds=120), field)
         print(items)
 
         ## -- creating chart
         try:
-            chart = pygal.Line()
+            labels_vals = list([item['time'].timestamp() for item in items])
             labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])
             print(labels)
-            chart.x_labels = labels
 
             values = list([float(item['value']) for item in items])
             print(values)
 
-            chart.add(field, values)
-            chart.render_to_file(file_name)
-        except Exception as e:
-            print(e)
+            plt.plot(labels_vals, values)
+            plt.xticks(labels_vals, labels)
 
-
-        ## -- converting to png from svg
-        try:
-            with open(file_name, 'rb') as svg_file:
-                with wand.image.Image(blob=svg_file.read(), format='svg') as img:
-                    with wand.color.Color('transparent') as bg_color:
-                        library.MagickSetBackgroundColor(img.wand, bg_color.resource)
-                    png_image = img.make_blob('png32')
-
-                    with open(png_filename, 'wb') as out:
-                        out.write(png_image)
-
+            plt.savefig(png_filename)
         except Exception as e:
             print(e)
 
