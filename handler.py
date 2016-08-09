@@ -156,7 +156,7 @@ class Handler:
             print(values)
 
             chart.add(field, values)
-            chart.render_to_file(file_name)
+            chart.render_to_png(file_name)
         except Exception as e:
             print(e)
 
