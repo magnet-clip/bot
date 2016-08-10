@@ -156,6 +156,8 @@ class Handler:
 
             plt.plot(labels_val, values)
             plt.xticks(labels_val, labels)
+            # -----------------
+            plt.autofmt_xdate()
 
             plt.savefig(png_filename)
         except Exception as e:
