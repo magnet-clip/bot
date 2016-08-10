@@ -93,6 +93,7 @@ def get_access(message):
 def make_snapshot(message):
     bot_handler.make_snapshot(message)
 
+
 @bot.message_handler(regexp=show_chart)
 def show_the_chart(message):
     print("Yo!")
@@ -101,7 +102,6 @@ def show_the_chart(message):
     matches = re.findall(pattern, message.text)
 
     print(matches)
-    field = ""
     if matches[0] == 'co':
         field = 'co2'
     elif matches[0] == 'gas':
@@ -115,6 +115,7 @@ def show_the_chart(message):
         return
 
     bot_handler.make_and_send_plot(message, field)
+
 
 if __name__ == '__main__':
     while True:

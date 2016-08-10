@@ -119,7 +119,6 @@ class Handler:
         if not self._authorize_admin(message.from_user.id, message.chat.id):
             return
 
-        answer = ""
         if kind == "b":
             answer = make_answer_list(man.list_banned())
         elif kind == "g":
@@ -137,35 +136,32 @@ class Handler:
             answer = "No users!"
         self.bot.send_message(message.chat.id, answer)
 
-
     def answer(self, message, text):
         bot.send_message(message.chat.id, text)
 
     def make_and_send_plot(self, message, field):
-        file_name = './test.svg'
         png_filename = './test.png'
         bot = self.bot
         items = self.db.fetch_last(timedelta(seconds=120), field)
         print(items)
 
-        ## -- creating chart
+        # -- creating chart
         try:
-            labels_vals = list([item['time'].timestamp() for item in items])
+            labels_val = list([item['time'].timestamp() for item in items])
             labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])
             print(labels)
 
             values = list([float(item['value']) for item in items])
             print(values)
 
-            plt.plot(labels_vals, values)
-            plt.xticks(labels_vals, labels)
+            plt.plot(labels_val, values)
+            plt.xticks(labels_val, labels)
 
             plt.savefig(png_filename)
         except Exception as e:
             print(e)
 
-
-        ## -- sending to user
+        # -- sending to user
         try:
             temp_file = open(png_filename, 'rb')
             try:
@@ -176,7 +172,7 @@ class Handler:
                 print("Failed to send photo: {0}".format(e))
             finally:
                 temp_file.close()
-        except Exception as e:
+        except Exception:
             bot.send_message(message.chat.id, "Failed to send a photo :(")
 
     def make_snapshot(self, message):

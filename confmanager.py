@@ -90,7 +90,9 @@ class ConfManager:
 
     def register_user_pending(self, user_id, user_name=""):
         uid = str(user_id)
-        if user_id in self._config: return
+        if user_id in self._config:
+            return
+
         self._config.add_section(uid)
         self._config[uid]["status"] = "pending"
         self._config[uid]["name"] = user_name

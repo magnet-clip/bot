@@ -1,4 +1,4 @@
-from threading import Thread, Lock
+from threading import Lock
 from tinydb import TinyDB, Query
 from datetime import datetime, timedelta
 
@@ -21,7 +21,7 @@ class DatabaseManager:
                 'temperature': items['temperature']
             })
 
-    def fetch_last(self, delta: timedelta, field: str): # timedelta(seconds=5) for example
+    def fetch_last(self, delta: timedelta, field: str):  # timedelta(seconds=5) for example
         threshold = (datetime.now() - delta).timestamp()
         with self.lock:
             record = Query()
