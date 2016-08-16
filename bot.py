@@ -13,7 +13,7 @@ import serial
 import dbman
 
 db = dbman.DatabaseManager()
-conn = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=0.5)
+conn = serial.Serial(port='/dev/ttyUSB0', baudrate=38400, timeout=0.5)
 sh = arduino.SerialHandler(conn, db)
 sh.start()
 
