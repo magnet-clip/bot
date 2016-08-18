@@ -1,6 +1,6 @@
-import os
-import configparser
-
+from os import path
+from configparser import ConfigParser
+import vars
 
 class ConfManager:
     _CONFIG_FILE = "bot.config"
@@ -19,10 +19,10 @@ class ConfManager:
         if config_file_name != "":
             self._CONFIG_FILE = config_file_name
 
-        if not os.path.isfile("./" + self._CONFIG_FILE):
+        if not path.isfile("./" + self._CONFIG_FILE):
             open("./" + self._CONFIG_FILE, "w").close()
 
-        self._config = configparser.ConfigParser()
+        self._config = ConfigParser()
         self._config.read("./" + self._CONFIG_FILE)
 
     def save(self):
@@ -142,3 +142,49 @@ class ConfManager:
 
     def list_pending(self):
         return self._list_by_criteria(self.is_user_pending)
+
+    # def add_notification(self, uuid, name, op, value):
+    #     if not self.is_user_allowed(uuid):
+    #         return False
+    #
+    #     op = vars.parse_op(op)
+    #     if not op:
+    #         return False
+    #
+    #     var_name = vars.find_var_by_name(name)
+    #     if not var_name:
+    #         return False
+    #
+    #     record_name = "{0} {1}"
+    #     self._config[uuid][]
+    #
+    # def mute_notification(self, uuid, name):
+    #     pass
+    #
+    # def unmute_notification(self, uuid):
+    #     pass
+    #
+    # def remove_notification(self, uuid, name):
+    #     pass
+    #
+    # def find_users_to_notify(self, var_name, value):
+    #     res = []
+    #     for uuid in self._config.sections():
+    #         if uuid == 'superuser':
+    #             continue
+    #
+    #         section = self._config[uuid]
+    #         # TODO CHECK CONSTRAINTS
+    #         # TODO NO FORMAT EXISTS => FIRST CREATE A METHOD TO ACCEPT CONSTRAINTS FROM USER
+    #         # TODO OR DAMN IT AND EDIT CONSTRAINTS MANUALLY? BAD IDEA, PEOPLE WILL GET TIRED
+    #         # COMMANDS: /notify temperature > 35
+    #         #           /notify temperature < 10
+    #         #           /notify motion
+    #         #           /notify gas > 400
+    #         #           /notify light > 100
+    #         #           /mute gas
+    #         #           /unmute gas
+    #         # TODO STORE WHEN LAST NOTIFIED AND DO NOT SEND TOO MUCH NOTIFICATIONS
+    #
+    #
+    #     return res

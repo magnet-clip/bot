@@ -4,14 +4,16 @@ import threading
 from dbman import DatabaseManager
 import re
 from datetime import datetime
+from handler import Handler as EventsHandler
 
 
 class SerialHandler(threading.Thread):
-    def __init__(self, cnn: serial.Serial, db: DatabaseManager):
+    def __init__(self, cnn: serial.Serial, db: DatabaseManager, handler: EventsHandler):
         super().__init__()
         self.db = db
         self.conn = cnn
         self.interrupted = False
+        self.handler = handler
         self.last_minutes = -1
         # TODO read last minutes from database (not really important feature)
 
@@ -70,13 +72,9 @@ class SerialHandler(threading.Thread):
                 vars.TEMPERATURE: temp
             })
 
-            self.inform_on(vars.CO2, co2)
-            self.inform_on(vars.GAS, gas)
-            self.inform_on(vars.LIGHT, light)
-            self.inform_on(vars.MOTION, motion)
-            self.inform_on(vars.HUMIDITY, hum)
-            self.inform_on(vars.TEMPERATURE, temp)
-
-    def inform_on(self, param, its_value):
-        pass
-
+            # self.handler.inform(vars.CO2, co2)
+            # self.handler.inform(vars.GAS, gas)
+            # self.handler.inform(vars.LIGHT, light)
+            # self.handler.inform(vars.MOTION, motion)
+            # self.handler.inform(vars.HUMIDITY, hum)
+            # self.handler.inform(vars.TEMPERATURE, temp)

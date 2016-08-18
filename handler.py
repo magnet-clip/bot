@@ -207,3 +207,9 @@ class Handler:
             helper.clear_folder("./snaps")
         except Exception as e:
             print("Failed to delete temp files: {0}".format(e))
+
+    # def inform(self, name, value):
+    #     user_ids = self.man.find_users_to_notify(name, value)
+    #     for user_id in user_ids:
+    #         message = "Notification: {0} is {1}".format(name, value)
+    #         self.bot.send_message(user_id, message)
