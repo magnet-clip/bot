@@ -6,12 +6,13 @@ class ConfManager:
     _CONFIG_FILE = "bot.config"
     DONE = "DONE"
     FAIL = "FAIL"
+    NONE = "NONE"
     OK = "OK"
 
     def _ensure_superuser_section(self):
         if not self._config.has_section("superuser"):
             self._config.add_section("superuser")
-            self._config["superuser"]["id"] = 'NONE'
+            self._config["superuser"]["id"] = self.NONE
             self.save()
 
     def __init__(self, config_file_name=""):
@@ -40,13 +41,13 @@ class ConfManager:
 
     def dispose_super_user(self):
         self._ensure_superuser_section()
-        self._config["superuser"]["id"] = 'NONE'
+        self._config["superuser"]["id"] = self.NONE
         self.save()
 
     def has_super_user(self):
         self._ensure_superuser_section()
         print("Current superuser id is %s" % self._config["superuser"]["id"])
-        return self._config["superuser"]["id"] != 'NONE'
+        return self._config["superuser"]["id"] != self.NONE
 
     def is_super_user(self, user_id):
         uid = str(user_id)

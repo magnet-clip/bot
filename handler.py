@@ -3,6 +3,9 @@ import dbman
 from datetime import timedelta
 import matplotlib.pyplot as plt
 
+from camera import Camera
+from confmanager import ConfManager
+
 
 def make_answer_list(items):
     res = ""
@@ -12,7 +15,7 @@ def make_answer_list(items):
 
 
 class Handler:
-    def __init__(self, bot, man, cam, db: dbman.DatabaseManager):
+    def __init__(self, bot, man: ConfManager, cam: Camera, db: dbman.DatabaseManager):
         self.bot = bot
         self.man = man
         self.cam = cam
@@ -137,7 +140,7 @@ class Handler:
         self.bot.send_message(message.chat.id, answer)
 
     def answer(self, message, text):
-        bot.send_message(message.chat.id, text)
+        self.bot.send_message(message.chat.id, text)
 
     def make_and_send_plot(self, message, field):
         png_filename = './test.png'

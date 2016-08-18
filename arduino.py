@@ -1,6 +1,6 @@
+import vars
 import serial
 import threading
-import queue
 from dbman import DatabaseManager
 import re
 from datetime import datetime
@@ -12,7 +12,6 @@ class SerialHandler(threading.Thread):
         self.db = db
         self.conn = cnn
         self.interrupted = False
-        self.queue = queue.Queue()
         self.last_minutes = -1
         # TODO read last minutes from database (not really important feature)
 
@@ -31,41 +30,12 @@ class SerialHandler(threading.Thread):
             decoded = re.sub("[\r\n]", "", decoded)
             items = decoded.split(';')
 
-            if len(items) < 7:
-                continue
+            if len(items) == 7:
+                self.handle_items(items)
 
-            minutes = datetime.now().minute
-            if minutes != self.last_minutes:
-                self.last_minutes = minutes
-
-                self.db.add({
-                    'co2': items[0],
-                    'gas': items[1],
-                    'light': items[2],
-                    'motion': items[3],
-                    'cameraAllowed': items[4],
-                    'humidity': items[5],
-                    'temperature': items[6]
-                })
-
-            # TODO Somehow check if one of the values hits limits
-            # TODO and notify user if necessary
-
-            # TODO Start with motion sensor, it is either YES or NO
-
-            # TODO In order to do it I have to have access to configuration
-            # TODO and to message sending facility
-
-            # TODO Configuration can be injected
-
-            # TODO What about message sending? It works in a loop, 
-            # TODO so I can use a queue for this! Hence I will have to inject a Queue
-            # TODO and check it in main loop!
-
-        if not self.queue.empty():
-            item = self.queue.get()
-            print("Got message [%s]!" % item)
-
+        # if not self.queue.empty():
+        #     item = self.queue.get()
+        #     print("Got message [%s]!" % item)
 
     def run(self):
         try:
@@ -74,5 +44,39 @@ class SerialHandler(threading.Thread):
         finally:
             self.conn.close()
 
-    def send_message(self, item):
-        self.queue.put(item)
+    # def send_message(self, item):
+    #     self.queue.put(item)
+
+    def handle_items(self, items):
+        minutes = datetime.now().minute
+        if minutes != self.last_minutes:
+            self.last_minutes = minutes
+
+            co2 = int(items[0])
+            gas = int(items[1])
+            light = int(items[2])
+            motion = int(items[3])
+            canCam = int(items[4])
+            hum = float(items[5])
+            temp = float(items[6])
+
+            self.db.add({
+                vars.CO2: co2,
+                vars.GAS: gas,
+                vars.LIGHT: light,
+                vars.MOTION: motion,
+                vars.CANCAM: canCam,
+                vars.HUMIDITY: hum,
+                vars.TEMPERATURE: temp
+            })
+
+            self.inform_on(vars.CO2, co2)
+            self.inform_on(vars.GAS, gas)
+            self.inform_on(vars.LIGHT, light)
+            self.inform_on(vars.MOTION, motion)
+            self.inform_on(vars.HUMIDITY, hum)
+            self.inform_on(vars.TEMPERATURE, temp)
+
+    def inform_on(self, param, its_value):
+        pass
+

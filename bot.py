@@ -1,20 +1,25 @@
 import config
-import arduino
 import telebot
-import confmanager
-import camera
-import handler
 import time
 import logging
 import sys
-import signal
 import re
-import serial
-import dbman
 
-db = dbman.DatabaseManager()
-conn = serial.Serial(port='/dev/ttyUSB0', baudrate=38400, timeout=0.5)
-sh = arduino.SerialHandler(conn, db)
+from handler import Handler as MessageHandler
+from signal import signal
+from arduino import SerialHandler
+from queue import Queue
+from serial import Serial
+from camera import Camera
+from confmanager import ConfManager
+from dbman import DatabaseManager
+import vars
+
+message_queue = Queue()
+
+db = DatabaseManager()
+conn = Serial(port='/dev/ttyUSB0', baudrate=38400, timeout=0.5)
+sh = SerialHandler(conn, db, message_queue)
 sh.start()
 
 
@@ -24,19 +29,19 @@ def ctrl_c_handler(signum, frame):
     sys.exit()
 
 
-signal.signal(signal.SIGINT, ctrl_c_handler)
+signal(signal.SIGINT, ctrl_c_handler)
 
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
 
-man = confmanager.ConfManager()
+man = ConfManager()
 bot = telebot.TeleBot(config.token, threaded=False)
-cam = camera.Camera()
+cam = Camera()
 
-bot_handler = handler.Handler(bot, man, cam, db)
+bot_handler = MessageHandler(bot, man, cam, db)
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "/list(g|p|b|)"
-show_chart = "/show +(t|h|co|gas)"
+show_chart = "/show +(t|temp|temperature|h|hum|humidity|co|co2|gas|l|light)"
 
 
 # @bot.inline_handler(lambda query: len(query.query) > 0)
@@ -62,12 +67,16 @@ def handle_user_command(message):
     pattern = re.compile(user_message_re)
     matches = re.findall(pattern, message.text)
 
-    if matches[0][0] == 'grant':
-        bot_handler.grant_access(message, matches[0][1])
-    elif matches[0][0] == 'delete':
-        bot_handler.delete_user(message, matches[0][1])
-    elif matches[0][0] == 'ban':
-        bot_handler.ban_user(message, matches[0][1])
+    match = matches[0]
+    cmd = match[0]
+    uuid = match[1]
+
+    if cmd == 'grant':
+        bot_handler.grant_access(message, uuid)
+    elif cmd == 'delete':
+        bot_handler.delete_user(message, uuid)
+    elif cmd == 'ban':
+        bot_handler.ban_user(message, uuid)
 
 
 @bot.message_handler(regexp=list_users_re)
@@ -96,20 +105,22 @@ def make_snapshot(message):
 
 @bot.message_handler(regexp=show_chart)
 def show_the_chart(message):
-    print("Yo!")
     pattern = re.compile(show_chart)
     print(show_chart)
     matches = re.findall(pattern, message.text)
 
     print(matches)
-    if matches[0] == 'co':
-        field = 'co2'
-    elif matches[0] == 'gas':
-        field = 'gas'
-    elif matches[0] == 't':
-        field = 'temperature'
-    elif matches[0] == 'h':
-        field = 'humidity'
+    var_name = matches[0]
+    if var_name == 'co' or var_name == 'co2':
+        field = vars.CO2
+    elif var_name == 'g' or var_name == 'gas':
+        field = vars.GAS
+    elif var_name == 't' or var_name == 'temp' or var_name == 'temperature':
+        field = vars.TEMPERATURE
+    elif var_name == 'h' or var_name == 'hum' or var_name == 'humidity':
+        field = vars.HUMIDITY
+    elif var_name == 'l' or var_name == 'light':
+        field = vars.LIGHT
     else:
         bot_handler.answer(message, "Wrong field")
         return
@@ -129,6 +140,7 @@ if __name__ == '__main__':
 
 # Common commands
 # /help
+# /current - table with current temperature/humidity etc (maybe with stats also)
 # /photo [center, topleft, topright, bottomleft, bottomright] makes a photo PARTIAL
 # /history [co2 / gas / temp / moist] [hour / {N} hours / day / week / month / year] sends a chart with data available
 # /alert turns on a siren (?)
