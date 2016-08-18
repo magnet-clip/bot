@@ -32,6 +32,7 @@ SYNONIMS = {
     'cancam': CANCAM
 }
 
+
 def parse_op(name: str):
     name = name.lower()
     if name == 'less' or name == 'lower' or name == 'smaller' or name == '<' or name == '<=':
