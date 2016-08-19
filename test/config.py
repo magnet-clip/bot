@@ -177,10 +177,33 @@ class TestConfig(unittest.TestCase):
         man.grant_access(1)
         self.assertFalse(man.is_notification_enabled(1, "xxx"))
 
-    # def add_notification_and_mute_it(self):
+    def add_notification_and_mute_it(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        man.mute_notification(1, Measures.CO2)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+
+    def mute_unmute_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.mute_notification(1, Measures.CO2)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        man.unmute_notification(1, Measures.CO2)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+
+    # def mute_on_unmute_all(self):
     #     pass
     #
-    # def mute_unmute_notification(self):
+    # def mute_all_unmute_one(self):
+    #     pass
+    #
+    # def mute_all_unmute_all(self):
     #     pass
     #
     # def all_muted_means_any_is_muted(self):
