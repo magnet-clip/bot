@@ -1,11 +1,11 @@
 import unittest
-import confmanager
+import conf_manager
 import os
 
 
 class TestConfig(unittest.TestCase):
     def setUp(self):
-        self.man = confmanager.ConfManager("test.config")
+        self.man = conf_manager.ConfManager("test.config")
 
     def tearDown(self):
         os.unlink("./test.config")

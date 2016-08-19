@@ -1,6 +1,6 @@
 from os import path
 from configparser import ConfigParser
-import vars
+import measures
 
 class ConfManager:
     _CONFIG_FILE = "bot.config"

@@ -5,15 +5,15 @@ import logging
 import sys
 import re
 
-from handler import Handler as MessageHandler
+from bot_manager import BotManager as MessageHandler
 from signal import signal
 from arduino import SerialHandler
 from queue import Queue
 from serial import Serial
 from camera import Camera
-from confmanager import ConfManager
-from dbman import DatabaseManager
-import vars
+from conf_manager import ConfManager
+from db_manager import DatabaseManager
+import measures
 
 message_queue = Queue()
 
@@ -112,15 +112,15 @@ def show_the_chart(message):
     print(matches)
     var_name = matches[0]
     if var_name == 'co' or var_name == 'co2':
-        field = vars.CO2
+        field = measures.CO2
     elif var_name == 'g' or var_name == 'gas':
-        field = vars.GAS
+        field = measures.GAS
     elif var_name == 't' or var_name == 'temp' or var_name == 'temperature':
-        field = vars.TEMPERATURE
+        field = measures.TEMPERATURE
     elif var_name == 'h' or var_name == 'hum' or var_name == 'humidity':
-        field = vars.HUMIDITY
+        field = measures.HUMIDITY
     elif var_name == 'l' or var_name == 'light':
-        field = vars.LIGHT
+        field = measures.LIGHT
     else:
         bot_handler.answer(message, "Wrong field")
         return

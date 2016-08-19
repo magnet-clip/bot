@@ -1,8 +1,8 @@
 import os
 import unittest
 from unittest.mock import Mock
-from handler import Handler
-from confmanager import ConfManager
+from bot_manager import BotManager
+from conf_manager import ConfManager
 from dictate import Dictate
 
 
@@ -11,7 +11,7 @@ def create_objects():
     man = ConfManager('temp.config')
     cam = Mock()
 
-    handler = Handler(bot, man, cam)
+    handler = BotManager(bot, man, cam)
     return handler, bot, man, cam
 
 

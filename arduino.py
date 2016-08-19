@@ -1,10 +1,10 @@
-import vars
+from measures import Measures
 import serial
 import threading
-from dbman import DatabaseManager
+from db_manager import DatabaseManager
 import re
 from datetime import datetime
-from handler import Handler as EventsHandler
+from bot_manager import BotManager as EventsHandler
 
 
 class SerialHandler(threading.Thread):
@@ -63,13 +63,13 @@ class SerialHandler(threading.Thread):
             temp = float(items[6])
 
             self.db.add({
-                vars.CO2: co2,
-                vars.GAS: gas,
-                vars.LIGHT: light,
-                vars.MOTION: motion,
-                vars.CANCAM: canCam,
-                vars.HUMIDITY: hum,
-                vars.TEMPERATURE: temp
+                Measures.CO2: co2,
+                Measures.GAS: gas,
+                Measures.LIGHT: light,
+                Measures.MOTION: motion,
+                Measures.CANCAM: canCam,
+                Measures.HUMIDITY: hum,
+                Measures.TEMPERATURE: temp
             })
 
             # self.handler.inform(vars.CO2, co2)

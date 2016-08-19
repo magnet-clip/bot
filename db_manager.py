@@ -1,5 +1,5 @@
 from threading import Lock
-import vars
+from measures import Measures
 from tinydb import TinyDB, Query
 from datetime import datetime, timedelta
 
@@ -12,14 +12,14 @@ class DatabaseManager:
     def add(self, items):
         with self.lock:
             self.db_conn.insert({
-                vars.TIME: datetime.now().timestamp(),
-                vars.CO2: items[vars.CO2],
-                vars.GAS: items[vars.GAS],
-                vars.LIGHT: items[vars.LIGHT],
-                vars.MOTION: items[vars.MOTION],
-                vars.CANCAM: items[vars.CANCAM],
-                vars.HUMIDITY: items[vars.HUMIDITY],
-                vars.TEMPERATURE: items[vars.TEMPERATURE]
+                Measures.TIME: datetime.now().timestamp(),
+                Measures.CO2: items[Measures.CO2],
+                Measures.GAS: items[Measures.GAS],
+                Measures.LIGHT: items[Measures.LIGHT],
+                Measures.MOTION: items[Measures.MOTION],
+                Measures.CANCAM: items[Measures.CANCAM],
+                Measures.HUMIDITY: items[Measures.HUMIDITY],
+                Measures.TEMPERATURE: items[Measures.TEMPERATURE]
             })
 
     def fetch_last(self, delta: timedelta, field: str):  # timedelta(seconds=5) for example

@@ -1,25 +1,26 @@
-import helper
-import dbman
+import os_helper
+import db_manager
 from datetime import timedelta
-import matplotlib.pyplot as plt
+from plotter import Plotter
 
 from camera import Camera
-from confmanager import ConfManager
+from conf_manager import ConfManager
 
 
 def make_answer_list(items):
     res = ""
-    for id, name in items:
-        res += " * {0}: /grant{1}, /delete{1}, /ban{1}\r\n".format(name, id)
+    for uuid, name in items:
+        res += " * {0}: /grant{1}, /delete{1}, /ban{1}\r\n".format(name, uuid)
     return res
 
 
-class Handler:
-    def __init__(self, bot, man: ConfManager, cam: Camera, db: dbman.DatabaseManager):
+class BotManager:
+    def __init__(self, bot, man: ConfManager, cam: Camera, db: db_manager.DatabaseManager, plotter: Plotter):
         self.bot = bot
         self.man = man
         self.cam = cam
         self.db = db
+        self.plotter = plotter
 
     def _authorize_admin(self, user_id, chat_id):
         bot = self.bot
@@ -149,6 +150,7 @@ class Handler:
         print(items)
 
         # -- creating chart
+
         try:
             labels_val = list([item['time'].timestamp() for item in items])
             labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])
@@ -157,12 +159,9 @@ class Handler:
             values = list([float(item['value']) for item in items])
             print(values)
 
-            plt.plot(labels_val, values)
-            plt.xticks(labels_val, labels)
-            # -----------------
-            plt.autofmt_xdate()
+            title = field
+            Plotter.create_plot(labels, labels_val, values, png_filename, title)
 
-            plt.savefig(png_filename)
         except Exception as e:
             print(e)
 
@@ -204,7 +203,7 @@ class Handler:
             bot.send_message(message.chat.id, "Failed to send a photo :(")
 
         try:
-            helper.clear_folder("./snaps")
+            os_helper.clear_folder("./snaps")
         except Exception as e:
             print("Failed to delete temp files: {0}".format(e))
 
