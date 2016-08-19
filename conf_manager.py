@@ -72,11 +72,11 @@ class ConfManager:
         return self._config["superuser"]["id"]
 
     def user_exists(self, user_id):
-        return self._config.has_section(user_id)
+        return self._config.has_section(str(user_id))
 
     def _check_by_criteria(self, user_id, value):
         uid = str(user_id)
-        if user_id in self._config:
+        if uid in self._config:
             return self._config[uid]["status"] == value
         else:
             return False
@@ -160,6 +160,22 @@ class ConfManager:
         self._config[uuid][record_name] = value
         return True
 
+    def has_notification(self, uuid, name):
+        if not self._config.has_section(uuid):
+            return False
+
+        var_name = Measures.find_var_by_name(name)
+        if not var_name:
+            return False
+
+        if len([x for x in self._config.options(uuid) if re.match("${0}".format(var_name), x)]) > 0:
+            return True
+
+        return False
+
+    def is_notification_enabled(self, uuid, name):
+        pass
+
     def remove_notification(self, uuid, name):
         if not self.is_user_allowed(uuid):
             return False
@@ -169,26 +185,58 @@ class ConfManager:
             return False
 
         # now I have to find all records which start with this variable name and remove them
-        for record_name in [x for x in self._config[uuid] if re.match("${0}".format(var_name), x)]:
+        for record_name in [x for x in self._config.options(uuid) if re.match("${0}".format(var_name), x)]:
             self._config.remove_option(uuid, record_name)
 
         self.save()
         return True
 
-    def mute_notification(self, uuid, name):
+    def mute_notification(self, uuid, name: str):
         if not self.is_user_allowed(uuid):
             return False
 
-        var_name = Measures.find_var_by_name(name)
-        if not var_name:
-            return False
+        name = name.lower()
+        if name != "all":
+            var_name = Measures.find_var_by_name(name)
+            if not var_name:
+                return False
 
+            mutes = self._config.get(uuid, "mute", fallback="")
+            if mutes != "all" and var_name not in mutes.split(";"):
+                self._config[uuid]["mute"] = mutes + ";" + var_name
+        else:
+            self._config[uuid]["mute"] = "all"
+
+        self.save()
         return True
 
-    # def unmute_notification(self, uuid):
-    #     pass
-    #
-    #     pass
+    def unmute_notification(self, uuid, name: str):
+        if not self.is_user_allowed(uuid):
+            return False
+
+        name = name.lower()
+        if name != "all":
+            var_name = Measures.find_var_by_name(name)
+            if not var_name:
+                return True
+
+            mutes = self._config.get(uuid, "mute", fallback="")
+            if mutes == "all":
+                all_vars = Measures.ALL_VARS
+                new_vars = all_vars.remove(var_name)
+                self._config[uuid]["mute"] = ";".join(new_vars)
+            else:
+                current_vars = mutes.split(";")
+                if var_name in current_vars:
+                    current_vars = current_vars.remove(var_name)
+                self._config[uuid]["mute"] = ";".join(current_vars)
+
+        else:
+            self._config[uuid]["mute"] = ""
+
+        self.save()
+        return True
+
     #
     # def find_users_to_notify(self, var_name, value):
     #     res = []

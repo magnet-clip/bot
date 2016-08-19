@@ -2,6 +2,7 @@ import unittest
 import conf_manager
 import os
 
+
 # TODO CREATE TESTS ON NOTIFICATIONS AND MUTES
 class TestConfig(unittest.TestCase):
     def setUp(self):
@@ -105,6 +106,19 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(len(man.list_banned()), 0)
         self.assertEqual(len(man.list_granted()), 0)
         self.assertEqual(len(man.list_pending()), 0)
+
+    def test_non_existing_user_has_no_notification(self):
+        man = self.man
+        self.assertFalse(man.has_notification(1, "xxx"))
+
+    def test_existing_user_has_no_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        self.assertTrue(man.user_exists(1))
+        man.grant_access(1)
+        self.assertTrue(man.is_user_allowed(1))
+        self.assertTrue(man.is_user_granted(1)) # todo what's difference between granted and allowed?
+        self.assertFalse(man.has_notification(1, "xxx"))
 
 if __name__ == '__main__':
     unittest.main()
