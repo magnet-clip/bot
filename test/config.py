@@ -2,7 +2,7 @@ import unittest
 import conf_manager
 import os
 
-
+# TODO CREATE TESTS ON NOTIFICATIONS AND MUTES
 class TestConfig(unittest.TestCase):
     def setUp(self):
         self.man = conf_manager.ConfManager("test.config")

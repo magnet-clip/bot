@@ -1,6 +1,7 @@
 from os import path
 from configparser import ConfigParser
-import measures
+from measures import Measures
+import re
 
 class ConfManager:
     _CONFIG_FILE = "bot.config"
@@ -143,28 +144,50 @@ class ConfManager:
     def list_pending(self):
         return self._list_by_criteria(self.is_user_pending)
 
-    # def add_notification(self, uuid, name, op, value):
-    #     if not self.is_user_allowed(uuid):
-    #         return False
-    #
-    #     op = vars.parse_op(op)
-    #     if not op:
-    #         return False
-    #
-    #     var_name = vars.find_var_by_name(name)
-    #     if not var_name:
-    #         return False
-    #
-    #     record_name = "{0} {1}"
-    #     self._config[uuid][]
-    #
-    # def mute_notification(self, uuid, name):
-    #     pass
-    #
+    def add_notification(self, uuid, name, op, value):
+        if not self.is_user_allowed(uuid):
+            return False
+
+        op_name = Measures.parse_op(op)
+        if not op_name:
+            return False
+
+        var_name = Measures.find_var_by_name(name)
+        if not var_name:
+            return False
+
+        record_name = "{0} {1}".format(var_name, op_name)
+        self._config[uuid][record_name] = value
+        return True
+
+    def remove_notification(self, uuid, name):
+        if not self.is_user_allowed(uuid):
+            return False
+
+        var_name = Measures.find_var_by_name(name)
+        if not var_name:
+            return False
+
+        # now I have to find all records which start with this variable name and remove them
+        for record_name in [x for x in self._config[uuid] if re.match("${0}".format(var_name), x)]:
+            self._config.remove_option(uuid, record_name)
+
+        self.save()
+        return True
+
+    def mute_notification(self, uuid, name):
+        if not self.is_user_allowed(uuid):
+            return False
+
+        var_name = Measures.find_var_by_name(name)
+        if not var_name:
+            return False
+
+        return True
+
     # def unmute_notification(self, uuid):
     #     pass
     #
-    # def remove_notification(self, uuid, name):
     #     pass
     #
     # def find_users_to_notify(self, var_name, value):
@@ -182,9 +205,8 @@ class ConfManager:
     #         #           /notify motion
     #         #           /notify gas > 400
     #         #           /notify light > 100
-    #         #           /mute gas
-    #         #           /unmute gas
+    #         #           /mute all/gas
+    #         #           /unmute all/gas
     #         # TODO STORE WHEN LAST NOTIFIED AND DO NOT SEND TOO MUCH NOTIFICATIONS
-    #
     #
     #     return res

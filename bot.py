@@ -1,5 +1,4 @@
 import config
-import telebot
 import time
 import logging
 import sys
@@ -13,7 +12,12 @@ from serial import Serial
 from camera import Camera
 from conf_manager import ConfManager
 from db_manager import DatabaseManager
-import measures
+from measures import Measures as measures
+
+try:
+    import telebot
+except ImportError as e:
+    telebot = None
 
 message_queue = Queue()
 

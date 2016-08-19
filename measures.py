@@ -39,20 +39,22 @@ class Measures:
         'equal': '=',  'equals': '=',  '=' : '=', '==': '='
     }
 
-    def parse_op(self, name: str):
-        return self.OP_SYNS.get(name.strip().lower(), False)
+    @staticmethod
+    def parse_op(name: str):
+        return Measures.OP_SYNS.get(name.strip().lower(), False)
 
-    def find_var_by_name(self, name: str):
-        return self.SYNONIMS.get(name.strip().lower(), False)
+    @staticmethod
+    def find_var_by_name(name: str):
+        return Measures.SYNONIMS.get(name.strip().lower(), False)
 
-
-    def list_synonims(self, name: str):
-        if not self.find_var_by_name(name.strip().lower()):
+    @staticmethod
+    def list_synonims(name: str):
+        if not Measures.find_var_by_name(name.strip().lower()):
             return []
 
         res = {}
-        for key in self.SYNONIMS.keys():
-            real_key = self.SYNONIMS[key]
+        for key in Measures.SYNONIMS.keys():
+            real_key = Measures.SYNONIMS[key]
             real_value = key
 
             if not real_key in res.keys():

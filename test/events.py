@@ -1,8 +1,9 @@
 import os
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from bot_manager import BotManager
 from conf_manager import ConfManager
+from db_manager import DatabaseManager
 from dictate import Dictate
 
 
@@ -10,8 +11,10 @@ def create_objects():
     bot = Mock()
     man = ConfManager('temp.config')
     cam = Mock()
+    db = DatabaseManager()
+    plotter = Mock()
 
-    handler = BotManager(bot, man, cam)
+    handler = BotManager(bot, man, cam, db, plotter)
     return handler, bot, man, cam
 
 
@@ -28,7 +31,9 @@ def create_message(id, chat_id, name, username="", text=""):
         text: text
     })
 
-
+# @patch("matplotlib.pyplot")
+# @patch("picamera")
+# @patch("telebot")
 class EventsTest(unittest.TestCase):
     def tearDown(self):
         os.unlink('./temp.config')
