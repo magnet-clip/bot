@@ -1,9 +1,9 @@
 import unittest
 import conf_manager
 import os
+from measures import Measures
 
 
-# TODO CREATE TESTS ON NOTIFICATIONS AND MUTES
 class TestConfig(unittest.TestCase):
     def setUp(self):
         self.man = conf_manager.ConfManager("test.config")
@@ -119,6 +119,18 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(man.is_user_allowed(1))
         self.assertTrue(man.is_user_granted(1)) # todo what's difference between granted and allowed?
         self.assertFalse(man.has_notification(1, "xxx"))
+
+    def test_add_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        self.assertFalse(man.has_notification(1, Measures.CO2))
+        man.add_notification(1, Measures.CO2, "greater", 100)
+        self.assertTrue(man.has_notification(1, Measures.CO2))
+
+    def test_add_wrong_notification(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

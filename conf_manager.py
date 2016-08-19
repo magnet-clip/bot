@@ -1,7 +1,7 @@
 from os import path
 from configparser import ConfigParser
 from measures import Measures
-import re
+
 
 class ConfManager:
     _CONFIG_FILE = "bot.config"
@@ -145,6 +145,8 @@ class ConfManager:
         return self._list_by_criteria(self.is_user_pending)
 
     def add_notification(self, uuid, name, op, value):
+        uuid = str(uuid)
+        value = str(value)
         if not self.is_user_allowed(uuid):
             return False
 
@@ -161,6 +163,7 @@ class ConfManager:
         return True
 
     def has_notification(self, uuid, name):
+        uuid = str(uuid)
         if not self._config.has_section(uuid):
             return False
 
@@ -168,15 +171,17 @@ class ConfManager:
         if not var_name:
             return False
 
-        if len([x for x in self._config.options(uuid) if re.match("${0}".format(var_name), x)]) > 0:
+        if len([x for x in self._config.options(uuid) if x.startswith(var_name)]) > 0:
             return True
 
         return False
 
     def is_notification_enabled(self, uuid, name):
+        uuid = str(uuid)
         pass
 
     def remove_notification(self, uuid, name):
+        uuid = str(uuid)
         if not self.is_user_allowed(uuid):
             return False
 
@@ -185,13 +190,14 @@ class ConfManager:
             return False
 
         # now I have to find all records which start with this variable name and remove them
-        for record_name in [x for x in self._config.options(uuid) if re.match("${0}".format(var_name), x)]:
+        for record_name in [x for x in self._config.options(uuid) if x.startswith(var_name)]:
             self._config.remove_option(uuid, record_name)
 
         self.save()
         return True
 
     def mute_notification(self, uuid, name: str):
+        uuid = str(uuid)
         if not self.is_user_allowed(uuid):
             return False
 
