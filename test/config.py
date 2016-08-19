@@ -111,6 +111,11 @@ class TestConfig(unittest.TestCase):
         man = self.man
         self.assertFalse(man.has_notification(1, "xxx"))
 
+    def test_non_existing_user_wont_add_notification(self):
+        man = self.man
+        man.add_notification(1, Measures.CO2, "greater", 100)
+        self.assertFalse(man.has_notification(1, Measures.CO2))
+
     def test_existing_user_has_no_notification(self):
         man = self.man
         man.register_user_pending(1, "pending")
@@ -129,8 +134,63 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(man.has_notification(1, Measures.CO2))
 
     def test_add_wrong_notification(self):
-        pass
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        self.assertFalse(man.has_notification(1, "XXX"))
+        man.add_notification(1, "XXX", "greater", 100)
+        self.assertFalse(man.has_notification(1, "XXX"))
 
+    def test_remove_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 100)
+        man.remove_notification(1, Measures.CO2)
+        self.assertFalse(man.has_notification(1, Measures.CO2))
+
+    def test_add_remove_two_notifications(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.CO2, "less", 100)
+        self.assertTrue(man.has_notification(1, Measures.CO2))
+        man.remove_notification(1, Measures.CO2)
+        self.assertFalse(man.has_notification(1, Measures.CO2))
+
+    def test_update_notification_does_not_fail(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.CO2, "greater", 200)
+        self.assertTrue(man.has_notification(1, Measures.CO2))
+
+    def test_non_existing_user_has_notifications_muted(self):
+        man = self.man
+        self.assertFalse(man.is_notification_enabled(1, "xxx"))
+
+    def test_new_existing_users_has_notifications_muted(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        self.assertFalse(man.is_notification_enabled(1, "xxx"))
+
+    # def add_notification_and_mute_it(self):
+    #     pass
+    #
+    # def mute_unmute_notification(self):
+    #     pass
+    #
+    # def all_muted_means_any_is_muted(self):
+    #     pass
+
+
+# more tests:
+# - mute / unmute / is_muted
+# - reading exact notification thresholds (what should be a format?)
+#
 
 if __name__ == '__main__':
     unittest.main()

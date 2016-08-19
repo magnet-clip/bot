@@ -178,7 +178,15 @@ class ConfManager:
 
     def is_notification_enabled(self, uuid, name):
         uuid = str(uuid)
-        pass
+        if not self.has_notification(uuid, name):
+            return False
+
+        var_name = Measures.find_var_by_name(name.lower())
+        if not var_name:
+            return False
+
+        mutes = self._config.get(uuid, "mute", fallback="")
+        return mutes == "all" or var_name in mutes.split(";")
 
     def remove_notification(self, uuid, name):
         uuid = str(uuid)
