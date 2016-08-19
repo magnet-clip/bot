@@ -146,11 +146,12 @@ class BotManager:
     def make_and_send_plot(self, message, field):
         png_filename = './test.png'
         bot = self.bot
+
+        # todo account for time interval
         items = self.db.fetch_last(timedelta(seconds=120), field)
         print(items)
 
         # -- creating chart
-
         try:
             labels_val = list([item['time'].timestamp() for item in items])
             labels = list([str(item['time'].strftime('%H:%M:%S')) for item in items])

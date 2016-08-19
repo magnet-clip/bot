@@ -31,6 +31,7 @@ def create_message(id, chat_id, name, username="", text=""):
         text: text
     })
 
+
 # @patch("matplotlib.pyplot")
 # @patch("picamera")
 # @patch("telebot")
@@ -104,7 +105,8 @@ class EventsTest(unittest.TestCase):
         message = create_message(id='13', name='L', username='Vova', chat_id='2', text="/getaccess")
         handler.get_access(message)
         bot.send_message.assert_called_with('12',
-                                            "User L id [13] wants to get access; Type /grant13 to allow, /ban13 to ban him")
+                                            "User L id [13] wants to get access; "
+                                            "Type /grant13 to allow, /ban13 to ban him")
         bot.send_message.assert_any_call('13', "Your application is under review")
         self.assertEqual(bot.send_message.call_count, 3)
 
@@ -136,7 +138,7 @@ class EventsTest(unittest.TestCase):
         bot.send_message.assert_called_with('12', "Failed to grant access")
         self.assertEqual(bot.send_message.call_count, 2)
 
-    def test_wrong_grant_access_nouser(self):
+    def test_wrong_grant_access_no_user(self):
         handler, bot, man, cam = create_objects()
 
         # set admin

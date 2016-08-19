@@ -12,7 +12,7 @@ class Measures:
     NUM_VARS = [TEMPERATURE, HUMIDITY, CO2, GAS, LIGHT]
     ALL_VARS = [TEMPERATURE, HUMIDITY, CO2, LIGHT, GAS, MOTION, CANCAM]
 
-    SYNONIMS = {
+    SYNONYMS = {
         TEMPERATURE: TEMPERATURE,
         'temp': TEMPERATURE,
         't': TEMPERATURE,
@@ -33,31 +33,31 @@ class Measures:
         'cancam': CANCAM
     }
 
-    OP_SYNS = {
-        '<': '<', '<=': '<', 'less' : '<', 'smaller': '<',
-        'bigger': '>', 'greater' : '>', 'larger': '>', '>' : '>', '>=' : '>=',
-        'equal': '=',  'equals': '=',  '=' : '=', '==': '='
+    OP_SYNONYMS = {
+        '<': '<', '<=': '<', 'less': '<', 'smaller': '<',
+        'bigger': '>', 'greater': '>', 'larger': '>', '>': '>', '>=': '>=',
+        'equal': '=', 'equals': '=', '=': '=', '==': '='
     }
 
     @staticmethod
     def parse_op(name: str):
-        return Measures.OP_SYNS.get(name.strip().lower(), False)
+        return Measures.OP_SYNONYMS.get(name.strip().lower(), False)
 
     @staticmethod
     def find_var_by_name(name: str):
-        return Measures.SYNONIMS.get(name.strip().lower(), False)
+        return Measures.SYNONYMS.get(name.strip().lower(), False)
 
     @staticmethod
-    def list_synonims(name: str):
+    def list_synonyms(name: str):
         if not Measures.find_var_by_name(name.strip().lower()):
             return []
 
         res = {}
-        for key in Measures.SYNONIMS.keys():
-            real_key = Measures.SYNONIMS[key]
+        for key in Measures.SYNONYMS.keys():
+            real_key = Measures.SYNONYMS[key]
             real_value = key
 
-            if not real_key in res.keys():
+            if real_key not in res.keys():
                 res[real_key] = [real_value]
             else:
                 res[real_key].push(real_value)
