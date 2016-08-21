@@ -5,7 +5,7 @@ import sys
 import re
 
 from bot_manager import BotManager as MessageHandler
-from signal import signal
+import signal
 from arduino import SerialHandler
 from queue import Queue
 from serial import Serial
@@ -13,6 +13,7 @@ from camera import Camera
 from conf_manager import ConfManager
 from db_manager import DatabaseManager
 from measures import Measures as measures
+from plotter import Plotter
 
 try:
     import telebot
@@ -33,7 +34,7 @@ def ctrl_c_handler(signum, frame):
     sys.exit()
 
 
-signal(signal.SIGINT, ctrl_c_handler)
+signal.signal(signal.SIGINT, ctrl_c_handler)
 
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
@@ -42,7 +43,7 @@ man = ConfManager()
 bot = telebot.TeleBot(config.token, threaded=False)
 cam = Camera()
 
-bot_handler = MessageHandler(bot, man, cam, db)
+bot_handler = MessageHandler(bot, man, cam, db, Plotter())
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "/list(g|p|b|)"
 show_chart = "/show +(t|temp|temperature|h|hum|humidity|co|co2|gas|l|light)"
