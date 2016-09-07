@@ -4,15 +4,14 @@ import logging
 import sys
 import re
 
-from bot_manager import BotManager as MessageHandler
+from bot_manager import MessageHandler
 import signal
 from arduino import SerialHandler
-from queue import Queue
 from serial import Serial
 from camera import Camera
 from conf_manager import ConfManager
 from db_manager import DatabaseManager
-from measures import Measures as measures
+from measures import Measures
 from plotter import Plotter
 
 try:
@@ -20,21 +19,8 @@ try:
 except ImportError as e:
     telebot = None
 
-message_queue = Queue()
-
 db = DatabaseManager()
 conn = Serial(port='/dev/ttyUSB0', baudrate=38400, timeout=0.5)
-sh = SerialHandler(conn, db, message_queue)
-sh.start()
-
-
-def ctrl_c_handler(signum, frame):
-    sh.interrupt()
-    print("Bye!")
-    sys.exit()
-
-
-signal.signal(signal.SIGINT, ctrl_c_handler)
 
 logger = telebot.logger
 telebot.logger.setLevel(logging.WARN)
@@ -44,6 +30,18 @@ bot = telebot.TeleBot(config.token, threaded=False)
 cam = Camera()
 
 bot_handler = MessageHandler(bot, man, cam, db, Plotter())
+
+sh = SerialHandler(conn, db, bot_handler)
+sh.start()
+
+def ctrl_c_handler(signum, frame):
+    sh.interrupt()
+    print("Bye!")
+    sys.exit()
+
+
+signal.signal(signal.SIGINT, ctrl_c_handler)
+
 user_message_re = "^/(ban|delete|grant) *(\d+)$"
 list_users_re = "/list(g|p|b|)"
 show_chart = "/show +(t|temp|temperature|h|hum|humidity|co|co2|gas|l|light)"
@@ -117,15 +115,15 @@ def show_the_chart(message):
     print(matches)
     var_name = matches[0]
     if var_name == 'co' or var_name == 'co2':
-        field = measures.CO2
+        field = Measures.CO2
     elif var_name == 'g' or var_name == 'gas':
-        field = measures.GAS
+        field = Measures.GAS
     elif var_name == 't' or var_name == 'temp' or var_name == 'temperature':
-        field = measures.TEMPERATURE
+        field = Measures.TEMPERATURE
     elif var_name == 'h' or var_name == 'hum' or var_name == 'humidity':
-        field = measures.HUMIDITY
+        field = Measures.HUMIDITY
     elif var_name == 'l' or var_name == 'light':
-        field = measures.LIGHT
+        field = Measures.LIGHT
     else:
         bot_handler.answer(message, "Wrong field")
         return

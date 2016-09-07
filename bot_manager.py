@@ -14,7 +14,7 @@ def make_answer_list(items):
     return res
 
 
-class BotManager:
+class MessageHandler:
     def __init__(self, bot, man: ConfManager, cam: Camera, db: db_manager.DatabaseManager, plotter: Plotter):
         self.bot = bot
         self.man = man

@@ -4,11 +4,11 @@ import threading
 from db_manager import DatabaseManager
 import re
 from datetime import datetime
-from bot_manager import BotManager as EventsHandler
+from bot_manager import MessageHandler
 
 
 class SerialHandler(threading.Thread):
-    def __init__(self, cnn: serial.Serial, db: DatabaseManager, handler: EventsHandler):
+    def __init__(self, cnn: serial.Serial, db: DatabaseManager, handler: MessageHandler):
         super().__init__()
         self.db = db
         self.conn = cnn

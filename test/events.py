@@ -1,7 +1,7 @@
 import os
 import unittest
 from unittest.mock import Mock, patch
-from bot_manager import BotManager
+from bot_manager import MessageHandler
 from conf_manager import ConfManager
 from db_manager import DatabaseManager
 from dictate import Dictate
@@ -14,7 +14,7 @@ def create_objects():
     db = DatabaseManager()
     plotter = Mock()
 
-    handler = BotManager(bot, man, cam, db, plotter)
+    handler = MessageHandler(bot, man, cam, db, plotter)
     return handler, bot, man, cam
 
 
