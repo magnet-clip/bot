@@ -160,6 +160,7 @@ class ConfManager:
 
         record_name = "{0} {1}".format(var_name, op_name)
         self._config[uuid][record_name] = value
+        self.save()
         return True
 
     def has_notification(self, uuid, name):
@@ -186,7 +187,7 @@ class ConfManager:
             return False
 
         mutes = self._config.get(uuid, "mute", fallback="")
-        return mutes == "all" or var_name in mutes.split(";")
+        return mutes != "all" and var_name not in mutes.split(";")
 
     def remove_notification(self, uuid, name):
         uuid = str(uuid)
@@ -225,6 +226,7 @@ class ConfManager:
         return True
 
     def unmute_notification(self, uuid, name: str):
+        uuid = str(uuid)
         if not self.is_user_allowed(uuid):
             return False
 
@@ -243,7 +245,10 @@ class ConfManager:
                 current_vars = mutes.split(";")
                 if var_name in current_vars:
                     current_vars = current_vars.remove(var_name)
-                self._config[uuid]["mute"] = ";".join(current_vars)
+                if current_vars is None:
+                    self._config[uuid]["mute"] = ""
+                else:
+                    self._config[uuid]["mute"] = ";".join(current_vars)
 
         else:
             self._config[uuid]["mute"] = ""
