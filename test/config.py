@@ -269,14 +269,8 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
         self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
 
-    #     pass
-    #
-    # def test_all_muted_means_any_is_muted(self):
-    #     pass
-
 
 # more tests:
-# - mute / unmute / is_muted
 # - reading exact notification thresholds (which format??)
 #
 
