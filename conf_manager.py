@@ -256,7 +256,15 @@ class ConfManager:
         self.save()
         return True
 
-    #
+        def unmute_all_notifications(self, uuid):
+            uuid = str(uuid)
+            pass
+
+        def mute_all_notifications(self, uuid):
+            uuid = str(uuid)
+            pass
+
+            #
     # def find_users_to_notify(self, var_name, value):
     #     res = []
     #     for uuid in self._config.sections():

@@ -197,13 +197,78 @@ class TestConfig(unittest.TestCase):
         man.unmute_notification(1, Measures.CO2)
         self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
 
-    # def test_mute_one_unmute_all(self):
-    #     pass
-    #
-    # def test_mute_all_unmute_one(self):
-    #     pass
-    #
-    # def test_mute_all_unmute_all(self):
+    def test_mute_twice_unmute_twice(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        man.mute_notification(1, Measures.CO2)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        man.mute_notification(1, Measures.CO2)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        man.unmute_notification(1, Measures.CO2)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        man.unmute_notification(1, Measures.CO2)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+
+    def test_mute_one_unmute_all(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.HUMIDITY, "greater", 100)
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.mute_notification(1, Measures.HUMIDITY)
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+
+    def test_mute_all_unmute_one(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.HUMIDITY, "greater", 100)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_notification(1, Measures.CO2)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_notification(1, Measures.HUMIDITY)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+
+    def test_mute_all_unmute_all(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.HUMIDITY, "greater", 100)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.is_notification_enabled(1, Measures.CO2))
+        self.assertFalse(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.is_notification_enabled(1, Measures.CO2))
+        self.assertTrue(man.is_notification_enabled(1, Measures.HUMIDITY))
+
     #     pass
     #
     # def test_all_muted_means_any_is_muted(self):
@@ -212,7 +277,7 @@ class TestConfig(unittest.TestCase):
 
 # more tests:
 # - mute / unmute / is_muted
-# - reading exact notification thresholds (what should be a format?)
+# - reading exact notification thresholds (which format??)
 #
 
 if __name__ == '__main__':
