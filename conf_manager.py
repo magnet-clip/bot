@@ -239,8 +239,8 @@ class ConfManager:
             mutes = self._config.get(uuid, "mute", fallback="")
             if mutes == "all":
                 all_vars = Measures.ALL_VARS
-                new_vars = all_vars.remove(var_name)
-                self._config[uuid]["mute"] = ";".join(new_vars)
+                all_vars.remove(var_name)
+                self._config[uuid]["mute"] = ";".join(all_vars)
             else:
                 current_vars = mutes.split(";")
                 if var_name in current_vars:
@@ -258,13 +258,25 @@ class ConfManager:
 
     def unmute_all_notifications(self, uuid):
         uuid = str(uuid)
-        pass
+        if not self.is_user_allowed(uuid):
+            return False
+
+        self._config[uuid]["mute"] = ""
+        self.save()
+        return True
 
     def mute_all_notifications(self, uuid):
         uuid = str(uuid)
-        pass
+        if not self.is_user_allowed(uuid):
+            return False
 
-            #
+        mutes = self._config.get(uuid, "mute", fallback="")
+        if mutes != "all":
+            self._config[uuid]["mute"] = "all"
+
+        self.save()
+        return True
+
     # def find_users_to_notify(self, var_name, value):
     #     res = []
     #     for uuid in self._config.sections():
