@@ -277,10 +277,149 @@ class TestConfig(unittest.TestCase):
         man = self.man
         self.assertFalse(man.unmute_all_notifications(1))
 
+    def test_read_created_simple_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
 
-# more tests:
-# - reading exact notification thresholds (which format??)
-#
+    def test_read_created_and_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.CO2, "less", 600)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 700))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 700))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 700))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 700))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        man.unmute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 700))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 700))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+
+    def test_read_created_or_notification(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.CO2, "less", 100)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 50))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 50))
+        man.mute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 50))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 50))
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 50))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 50))
+
+    def test_change_notification_params(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+
+        man.add_notification(1, Measures.CO2, "less", 250)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 200))
+
+        man.mute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+
+        man.remove_notification(1, Measures.CO2)
+        man.unmute_all_notifications(1)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        man.add_notification(1, Measures.CO2, "less", 250)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 200))
+
+        man.add_notification(1, Measures.CO2, "less", 150)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 100))
+
+    def test_two_notifications_mute_unmute_one_by_one(self):
+        man = self.man
+        man.register_user_pending(1, "pending")
+        man.grant_access(1)
+
+        man.add_notification(1, Measures.CO2, "greater", 300)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+
+        man.add_notification(1, Measures.HUMIDITY, "greater", 300)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+
+        man.mute_notification(1, Measures.CO2)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+
+        man.mute_notification(1, Measures.HUMIDITY)
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+
+        man.unmute_all_notifications(1)
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.CO2, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.CO2, 200))
+        self.assertTrue(man.will_user_get_notified_on(1, Measures.HUMIDITY, 400))
+        self.assertFalse(man.will_user_get_notified_on(1, Measures.HUMIDITY, 200))
+
+    def test_find_users_to_notify(self):
+        self.fail("TODO")
 
 if __name__ == '__main__':
     unittest.main()
